@@ -28,8 +28,8 @@
 - [ ] Probar una respuesta de IA on-device sin llamar a ninguna API externa
 
 ### Infraestructura
-- [ ] `npm start` / `pear run --dev .` funciona sin errores
-- [ ] Variables de sala por argumento CLI (`process.argv`)
+- [x] `npm start` / `pear run --dev .` funciona sin errores (type: desktop, main: index.html)
+- [x] Variables de sala por argumento CLI — `location.hash` en desktop (ej: `pear run --dev . #mi-sala`)
 
 ---
 
@@ -37,9 +37,9 @@
 > Meta: reacciones a jugadas, traducción de voz on-device, video de 3 min
 
 ### Capa P2P
-- [ ] `src/p2p/board.js` — tablón de predicciones compartido entre peers (Autobase o Hypercore)
-- [ ] Sistema de reacciones en tiempo real (gol, falta, VAR, etc.) transmitidas por la malla
-- [ ] Manejo de desconexión/reconexión de peers sin perder el estado
+- [x] `src/p2p/board.js` — tablón de predicciones compartido entre peers (broadcast vía swarm)
+- [x] Sistema de reacciones en tiempo real (gol, falta, VAR, etc.) transmitidas por la malla
+- [x] Manejo de desconexión/reconexión de peers sin perder el estado (onPeerLeave + auto-reconnect Hyperswarm)
 
 ### Capa IA
 - [ ] `src/ai/translator.js` — traducción de voz on-device con QVAC (español ↔ otro idioma)
@@ -47,8 +47,8 @@
 - [ ] Comentarista táctico: analiza secuencia de eventos y genera análisis breve
 
 ### UI
-- [ ] `src/ui/index.js` — interfaz mínima en terminal o Pears GUI
-- [ ] Vista: chat de hinchada + reacciones + comentario IA visible
+- [x] `src/ui/index.js` — Pears GUI desktop (app.js conecta swarm+chat+IA+board+wallet)
+- [x] Vista: chat de hinchada + reacciones + comentario IA visible
 
 ### Demo
 - [ ] `demo/guion.md` — guion del video de 3 minutos

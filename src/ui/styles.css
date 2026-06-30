@@ -1113,6 +1113,41 @@ input {
   transform: translateX(-50%) translateY(0);
 }
 
+/* ====== BOARD — PARTICIPANTES ====== */
+.participant-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.825rem;
+}
+
+.participant-row:last-child { border-bottom: none; }
+
+.participant-id {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  color: var(--text-3);
+  font-size: 0.75rem;
+  flex: 1;
+}
+
+.participant-pred {
+  font-weight: 700;
+  color: var(--text-1);
+  font-variant-numeric: tabular-nums;
+  min-width: 40px;
+  text-align: center;
+}
+
+.participant-amount {
+  font-weight: 600;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.8rem;
+}
+
 /* ====== SAFE AREAS (notch / home bar) ====== */
 @supports (padding: max(0px)) {
   .app-header  { padding-top: env(safe-area-inset-top); height: calc(var(--header-h) + env(safe-area-inset-top)); }

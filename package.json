@@ -2,7 +2,7 @@
   "name": "moufut",
   "version": "0.1.0",
   "description": "El compañero de partido que funciona aunque se caiga el internet.",
-  "main": "app.js",
+  "main": "src/ui/index.html",
   "type": "module",
   "scripts": {
     "start": "pear run --dev .",
@@ -10,7 +10,7 @@
   },
   "pear": {
     "name": "moufut",
-    "type": "terminal",
+    "type": "desktop",
     "pre": ["@qvac/sdk/pear-pre"]
   },
   "dependencies": {

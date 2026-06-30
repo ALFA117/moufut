@@ -1,0 +1,27 @@
+{
+  "name": "moufut",
+  "version": "0.1.0",
+  "description": "El compañero de partido que funciona aunque se caiga el internet.",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "start": "pear run --dev .",
+    "dev": "pear run --dev ."
+  },
+  "pear": {
+    "name": "moufut",
+    "type": "terminal",
+    "pre": ["@qvac/sdk/pear-pre"]
+  },
+  "dependencies": {
+    "hyperswarm": "^4.7.15",
+    "hypercore-protocol": "^8.0.7",
+    "hypercore": "^10.28.0",
+    "autobase": "^6.0.0",
+    "b4a": "^1.6.7",
+    "sodium-universal": "^4.0.0",
+    "@qvac/sdk": "^0.14.0"
+  },
+  "devDependencies": {},
+  "license": "Apache-2.0"
+}

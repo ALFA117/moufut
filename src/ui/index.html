@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>MouFut</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="logo">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <circle cx="14" cy="14" r="13" stroke="#00E676" stroke-width="2"/>
+          <path d="M14 4 L17 10 L23 10 L18 14 L20 20 L14 17 L8 20 L10 14 L5 10 L11 10 Z" fill="#00E676" opacity="0.15" stroke="#00E676" stroke-width="1.5"/>
+        </svg>
+        <span class="logo-text">MouFut</span>
+      </div>
+      <div class="header-status">
+        <span class="status-dot" id="connectionDot" aria-label="Estado de conexión"></span>
+        <span class="status-label" id="connectionLabel">P2P</span>
+        <span class="peers-count" id="peersCount">0 peers</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="app-main">
+
+    <!-- PANTALLA 1: SALA DE PARTIDO -->
+    <section class="screen active" id="screen-partido" role="main" aria-label="Sala de partido">
+
+      <!-- Match Info Card -->
+      <div class="glass-card match-info">
+        <div class="match-teams">
+          <div class="team">
+            <div class="team-badge">MX</div>
+            <span class="team-name">México</span>
+          </div>
+          <div class="match-score">
+            <span class="score" id="scoreHome">0</span>
+            <span class="score-sep">:</span>
+            <span class="score" id="scoreAway">0</span>
+          </div>
+          <div class="team">
+            <div class="team-badge">AR</div>
+            <span class="team-name">Argentina</span>
+          </div>
+        </div>
+        <div class="match-meta">
+          <span class="match-time" id="matchTime">45'</span>
+          <span class="match-stage">Mundial 2026 — Grupo C</span>
+        </div>
+      </div>
+
+      <!-- Reactions Bar -->
+      <div class="reactions-bar" role="group" aria-label="Reacciones">
+        <button class="reaction-btn" data-reaction="gol" aria-label="Gol">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>
+          </svg>
+          <span class="reaction-label">GOL</span>
+        </button>
+        <button class="reaction-btn" data-reaction="falta" aria-label="Falta">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <rect x="4" y="2" width="6" height="16" rx="1"/><rect x="14" y="6" width="6" height="16" rx="1"/>
+          </svg>
+          <span class="reaction-label">FALTA</span>
+        </button>
+        <button class="reaction-btn" data-reaction="var" aria-label="VAR">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
+          </svg>
+          <span class="reaction-label">VAR</span>
+        </button>
+        <button class="reaction-btn" data-reaction="roja" aria-label="Tarjeta roja">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <rect x="7" y="2" width="10" height="14" rx="2" fill="#FF1744" stroke="#FF1744"/>
+          </svg>
+          <span class="reaction-label">ROJA</span>
+        </button>
+        <button class="reaction-btn" data-reaction="fuera" aria-label="Fuera">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+          <span class="reaction-label">FUERA</span>
+        </button>
+      </div>
+
+      <!-- Chat -->
+      <div class="chat-container">
+        <div class="chat-messages" id="chatMessages" aria-live="polite" aria-label="Chat de hinchada">
+          <div class="chat-empty">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="#00E676" stroke-width="1.5" opacity="0.4" aria-hidden="true">
+              <path d="M20 4C11.2 4 4 10.3 4 18c0 3.5 1.4 6.7 3.8 9.1L6 34l7.3-2.3C15.4 32.5 17.6 33 20 33c8.8 0 16-6.3 16-15S28.8 4 20 4z"/>
+            </svg>
+            <p>Nadie en la sala aún.<br/>Comparte el código para que tu banda se una.</p>
+          </div>
+        </div>
+
+        <div class="room-code-bar">
+          <span class="room-code-label">Sala:</span>
+          <code class="room-code" id="roomCode">moufut-default</code>
+          <button class="btn-copy" id="btnCopyRoom" aria-label="Copiar código de sala">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+            </svg>
+          </button>
+        </div>
+
+        <form class="chat-input-row" id="chatForm" autocomplete="off">
+          <input
+            type="text"
+            id="chatInput"
+            class="chat-input"
+            placeholder="Escribe algo..."
+            maxlength="200"
+            aria-label="Mensaje al chat"
+          />
+          <button type="submit" class="btn-send" aria-label="Enviar mensaje">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/>
+            </svg>
+          </button>
+        </form>
+      </div>
+
+    </section>
+
+    <!-- PANTALLA 2: COMENTARISTA IA -->
+    <section class="screen" id="screen-ia" role="main" aria-label="Comentarista IA">
+
+      <div class="ia-header glass-card">
+        <div class="ia-avatar" aria-hidden="true">
+          <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+            <circle cx="18" cy="18" r="17" fill="rgba(0,230,118,0.1)" stroke="#00E676" stroke-width="1.5"/>
+            <path d="M10 18h16M18 10v16" stroke="#00E676" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="18" cy="18" r="4" fill="#00E676" opacity="0.3"/>
+          </svg>
+        </div>
+        <div class="ia-info">
+          <h2 class="ia-name">MouBot</h2>
+          <span class="ia-badge">IA on-device · QVAC</span>
+        </div>
+        <div class="ia-status-indicator" id="iaIndicator" aria-label="Estado IA">
+          <span class="pulse-dot"></span>
+          <span class="ia-status-text" id="iaStatusText">Listo</span>
+        </div>
+      </div>
+
+      <!-- Commentary Feed -->
+      <div class="commentary-feed" id="commentaryFeed" aria-live="polite" aria-label="Comentarios de MouBot">
+        <div class="commentary-item featured">
+          <div class="comment-meta">
+            <span class="comment-time">45'</span>
+            <span class="comment-tag">Táctica</span>
+          </div>
+          <p class="comment-text">México está defendiendo con línea de 5, cediendo el balón. Argentina necesita velocidad por las bandas para romper ese bloque.</p>
+        </div>
+        <div class="commentary-item">
+          <div class="comment-meta">
+            <span class="comment-time">38'</span>
+            <span class="comment-tag">Jugada</span>
+          </div>
+          <p class="comment-text">Presión alta de Argentina que forzó el error en salida. El portero resuelve con un despeje largo que genera contra.</p>
+        </div>
+        <div class="commentary-placeholder" id="commentaryPlaceholder" aria-hidden="true">
+          <div class="typing-dots">
+            <span></span><span></span><span></span>
+          </div>
+          <span>MouBot analizando...</span>
+        </div>
+      </div>
+
+      <!-- Ask IA -->
+      <div class="ia-ask-section">
+        <p class="ia-ask-label">Pregunta a MouBot</p>
+        <div class="ia-quick-actions" role="group" aria-label="Preguntas rápidas">
+          <button class="btn-quick" data-question="¿Qué táctica usa México?">Táctica México</button>
+          <button class="btn-quick" data-question="¿Quién va ganando el duelo al mediocampo?">Medio</button>
+          <button class="btn-quick" data-question="¿Cuál es la mejor jugada del partido?">Mejor jugada</button>
+          <button class="btn-quick" data-question="¿Cómo puede marcar Argentina?">Cómo marcar</button>
+        </div>
+        <form class="ia-input-row" id="iaForm" autocomplete="off">
+          <input
+            type="text"
+            id="iaInput"
+            class="ia-input"
+            placeholder="¿Qué opinas sobre...?"
+            maxlength="150"
+            aria-label="Pregunta para MouBot"
+          />
+          <button type="submit" class="btn-ask" aria-label="Preguntar a MouBot">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/>
+            </svg>
+          </button>
+        </form>
+      </div>
+
+    </section>
+
+    <!-- PANTALLA 3: QUINIELA USDt -->
+    <section class="screen" id="screen-quiniela" role="main" aria-label="Quiniela USDt">
+
+      <!-- Wallet Card -->
+      <div class="glass-card wallet-card">
+        <div class="wallet-header">
+          <div class="wallet-icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFB300" stroke-width="2">
+              <rect x="2" y="5" width="20" height="14" rx="2"/><path d="M16 12a1 1 0 100-2 1 1 0 000 2z" fill="#FFB300"/>
+            </svg>
+          </div>
+          <div class="wallet-info">
+            <span class="wallet-label">Mi cartera</span>
+            <span class="wallet-address" id="walletAddress">0x...carga</span>
+          </div>
+          <div class="wallet-balance">
+            <span class="balance-amount" id="walletBalance">—</span>
+            <span class="balance-currency">USDt</span>
+          </div>
+        </div>
+        <div class="wallet-actions">
+          <button class="btn-wallet-action" id="btnCreateWallet">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M12 5v14M5 12h14"/>
+            </svg>
+            Nueva cartera
+          </button>
+          <button class="btn-wallet-action secondary" id="btnImportWallet">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+            </svg>
+            Importar
+          </button>
+        </div>
+      </div>
+
+      <!-- Pool Status -->
+      <div class="glass-card pool-card">
+        <div class="pool-header">
+          <h2 class="pool-title">Quiniela del grupo</h2>
+          <div class="pool-pot">
+            <span class="pot-amount" id="poolAmount">0</span>
+            <span class="pot-label">USDt en el pozo</span>
+          </div>
+        </div>
+
+        <div class="pool-participants" id="poolParticipants">
+          <div class="participant-empty">
+            <p>Nadie ha apostado aún.<br/>Sé el primero en predecir el marcador.</p>
+          </div>
+        </div>
+
+        <div class="pool-status-bar">
+          <div class="pool-status-item">
+            <span class="pool-status-value" id="poolPlayers">0</span>
+            <span class="pool-status-key">jugadores</span>
+          </div>
+          <div class="pool-divider" aria-hidden="true"></div>
+          <div class="pool-status-item">
+            <span class="pool-status-value usdt" id="poolPot">0</span>
+            <span class="pool-status-key">USDt</span>
+          </div>
+          <div class="pool-divider" aria-hidden="true"></div>
+          <div class="pool-status-item">
+            <span class="pool-status-value" id="poolStatus">Abierta</span>
+            <span class="pool-status-key">estado</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bet Form -->
+      <div class="glass-card bet-card">
+        <h3 class="bet-title">Tu predicción</h3>
+        <div class="bet-score-input">
+          <div class="score-field">
+            <label class="score-label" for="betHome">México</label>
+            <input
+              type="number"
+              id="betHome"
+              class="score-input"
+              min="0"
+              max="20"
+              value="0"
+              aria-label="Goles México"
+            />
+          </div>
+          <span class="score-sep-bet" aria-hidden="true">:</span>
+          <div class="score-field">
+            <label class="score-label" for="betAway">Argentina</label>
+            <input
+              type="number"
+              id="betAway"
+              class="score-input"
+              min="0"
+              max="20"
+              value="0"
+              aria-label="Goles Argentina"
+            />
+          </div>
+        </div>
+        <div class="bet-amount-row">
+          <label class="bet-amount-label" for="betAmount">Apuesta (USDt)</label>
+          <div class="bet-amount-input-wrap">
+            <input
+              type="number"
+              id="betAmount"
+              class="bet-amount-input"
+              min="1"
+              step="0.5"
+              value="5"
+              aria-label="Monto de apuesta en USDt"
+            />
+            <span class="bet-currency">USDt</span>
+          </div>
+        </div>
+        <button class="btn-bet" id="btnPlaceBet">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+          Apostar
+        </button>
+        <p class="bet-disclaimer">Las llaves nunca salen de tu dispositivo. Liquidación P2P automática.</p>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav" role="navigation" aria-label="Navegación principal">
+    <button class="nav-item active" data-screen="partido" aria-label="Sala de partido" aria-current="page">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M12 2 C12 2 8 7 8 12 S12 22 12 22" stroke-width="1.5"/>
+        <path d="M2 12h20" stroke-width="1.5"/>
+      </svg>
+      <span class="nav-label">Partido</span>
+    </button>
+    <button class="nav-item" data-screen="ia" aria-label="Comentarista IA">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <rect x="3" y="3" width="18" height="14" rx="2"/>
+        <path d="M8 21h8M12 17v4"/>
+        <path d="M8 10h.01M12 10h.01M16 10h.01" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+      <span class="nav-label">MouBot</span>
+    </button>
+    <button class="nav-item" data-screen="quiniela" aria-label="Quiniela USDt">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <rect x="2" y="5" width="20" height="14" rx="2"/>
+        <path d="M2 10h20"/>
+        <circle cx="16" cy="15" r="1.5" fill="currentColor"/>
+      </svg>
+      <span class="nav-label">Quiniela</span>
+    </button>
+  </nav>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

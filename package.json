@@ -11,17 +11,21 @@
   "pear": {
     "name": "moufut",
     "type": "desktop",
-    "pre": ["@qvac/sdk/pear-pre"]
+    "pre": [
+      "@qvac/sdk/pear-pre"
+    ]
   },
   "dependencies": {
-    "hyperswarm": "^4.7.15",
-    "hypercore-protocol": "^8.0.7",
-    "hypercore": "^10.28.0",
+    "@qvac/sdk": "^0.14.0",
+    "@tetherto/wdk": "^1.0.0-beta.12",
+    "@tetherto/wdk-wallet-evm": "^1.0.0-beta.14",
+    "@tetherto/wdk-wallet-tron": "^1.0.0-beta.7",
     "autobase": "^6.0.0",
     "b4a": "^1.6.7",
-    "sodium-universal": "^4.0.0",
-    "@qvac/sdk": "^0.14.0"
+    "hypercore": "^10.28.0",
+    "hypercore-protocol": "^8.0.7",
+    "hyperswarm": "^4.7.15",
+    "sodium-universal": "^4.0.0"
   },
-  "devDependencies": {},
   "license": "Apache-2.0"
 }

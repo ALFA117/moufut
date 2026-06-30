@@ -42,16 +42,16 @@
 - [x] Manejo de desconexión/reconexión de peers sin perder el estado (onPeerLeave + auto-reconnect Hyperswarm)
 
 ### Capa IA
-- [ ] `src/ai/translator.js` — traducción de voz on-device con QVAC (español ↔ otro idioma)
-- [ ] Pipeline: audio entrada → QVAC transcribe → QVAC traduce → audio o texto salida
-- [ ] Comentarista táctico: analiza secuencia de eventos y genera análisis breve
+- [x] `src/ai/translator.js` — transcripción Whisper Base + traducción NMT on-device (QVAC)
+- [x] Pipeline: audio (Uint8Array) → Whisper transcribe → NMT traduce → texto salida
+- [x] Comentarista táctico: `analyzeTactical()` analiza historial de 8 eventos con SMOLLM2
 
 ### UI
 - [x] `src/ui/index.js` — Pears GUI desktop (app.js conecta swarm+chat+IA+board+wallet)
 - [x] Vista: chat de hinchada + reacciones + comentario IA visible
 
 ### Demo
-- [ ] `demo/guion.md` — guion del video de 3 minutos
+- [x] `demo/guion.md` — guion del video de 3 minutos (4 escenas + checklist grabación)
 - [ ] Grabar video demostrando P2P sin internet + IA on-device
 
 ---
@@ -60,8 +60,8 @@
 > Meta: quiniela de USDt que se liquida sola entre peers
 
 ### Capa Wallet (WDK)
-- [ ] Instalar y configurar `@tetherto/wdk`
-- [ ] `src/wallet/wallet.js` — crear/importar cartera autocustodial, mostrar balance USDt
+- [x] Instalar y configurar `@tetherto/wdk` + `wdk-wallet-evm` + `wdk-wallet-tron`
+- [x] `src/wallet/wallet.js` — crear/importar cartera BIP-39, dirección EVM, balance USDt ERC-20
 - [ ] `src/wallet/pool.js` — crear pool de quiniela: cada peer apuesta X USDt
 - [ ] Lógica de quiniela: quién acierta el marcador se lleva el pozo
 - [ ] Liquidación peer-to-peer automática al terminar el partido (sin intermediario)

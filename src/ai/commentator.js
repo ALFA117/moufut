@@ -2,8 +2,11 @@ import { loadModel, completion } from '@qvac/sdk'
 import { SMOLLM2_360M_INST_Q8 } from '@qvac/sdk/models'
 
 let commentModelId = null
+const eventHistory = []
+const MAX_HISTORY  = 8
 
-const SYSTEM_PROMPT = 'Eres un comentarista deportivo apasionado de fútbol. Responde siempre en 1-2 oraciones cortas, estilo radio en vivo.'
+const SYSTEM_PROMPT    = 'Eres un comentarista deportivo apasionado de fútbol. Responde siempre en 1-2 oraciones cortas, estilo radio en vivo.'
+const TACTICAL_PROMPT  = 'Eres un analista táctico de fútbol. Dado el historial de jugadas, genera un análisis táctico breve (2-3 oraciones) sobre lo que está pasando en el partido.'
 
 const EVENT_DESC = {
   goal:       (e) => `GOL de ${e.player ?? 'jugador desconocido'} al minuto ${e.minute ?? '?'}.`,
@@ -53,11 +56,34 @@ export async function createCommentator() {
   return {
     async analyze(event) {
       const desc = describeEvent(event)
+      eventHistory.push({ type: event.type ?? 'event', desc, ts: Date.now() })
+      if (eventHistory.length > MAX_HISTORY) eventHistory.shift()
+
       if (!commentModelId) return `[Stub] ${desc}`
       try {
         return await runCompletion(`Comenta este momento: ${desc}`)
       } catch {
         return `[Stub] ${desc}`
+      }
+    },
+
+    async analyzeTactical() {
+      if (eventHistory.length === 0) return 'No hay eventos registrados aún.'
+      const summary = eventHistory.map((e, i) => `${i + 1}. ${e.type}: ${e.desc}`).join('\n')
+      if (!commentModelId) return `[Stub táctico] Últimas ${eventHistory.length} jugadas registradas.`
+      try {
+        const run = completion({
+          modelId: commentModelId,
+          history: [
+            { role: 'system', content: TACTICAL_PROMPT },
+            { role: 'user',   content: `Historial de jugadas:\n${summary}\n\n¿Qué está pasando tácticamente?` }
+          ],
+          stream: false
+        })
+        const result = await run.final
+        return result.content ?? ''
+      } catch {
+        return `[Stub táctico] Últimas ${eventHistory.length} jugadas analizadas.`
       }
     },
 
@@ -71,6 +97,8 @@ export async function createCommentator() {
       }
     },
 
-    destroy() {}
+    getHistory() { return [...eventHistory] },
+
+    destroy() { eventHistory.length = 0 }
   }
 }

@@ -280,16 +280,28 @@
       <div class="container">
         <div class="section-head" data-reveal>
           <span class="section-eyebrow">Empezar</span>
-          <h2 class="section-title">Cómo correrlo</h2>
+          <h2 class="section-title">Descárgalo o clónalo</h2>
+          <p class="section-sub">Sin cuenta, sin instalador de terceros — el código directo desde GitHub.</p>
         </div>
-        <pre class="code-block" data-reveal><span class="comment"># clonar e instalar</span>
+
+        <div class="cta-row download-row" data-reveal>
+          <a class="btn-primary" href="https://github.com/ALFA117/moufut/archive/refs/heads/master.zip">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            Descargar ZIP
+          </a>
+          <a class="btn-secondary" href="https://github.com/ALFA117/moufut">
+            Ver releases en GitHub
+          </a>
+        </div>
+
+        <pre class="code-block" data-reveal><span class="comment"># opción 1: descarga el ZIP de arriba y descomprímelo, o clona con git</span>
 git clone https://github.com/ALFA117/moufut.git
 cd moufut
 npm install
 
 <span class="comment"># abre la ventana desktop (Pear/Bare)</span>
 pear run --dev .</pre>
-        <p class="run-note" data-reveal>MouFut es una app de escritorio P2P — esta página es solo la presentación del proyecto, no la app en sí. Instrucciones completas en el README del repo.</p>
+        <p class="run-note" data-reveal>MouFut es una app de escritorio P2P — esta página es solo la presentación del proyecto, no la app en sí. Instrucciones completas en el README del repo. Necesitas el runtime Pear/Bare instalado (<a href="https://docs.pears.com/">docs.pears.com</a>) antes de <code>pear run --dev .</code>.</p>
       </div>
     </section>
 

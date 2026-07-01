@@ -77,8 +77,10 @@ moufut/
 
 ## Instalación y ejecución
 
+**Opción rápida:** descarga el [ZIP del código](https://github.com/ALFA117/moufut/archive/refs/heads/master.zip) y descomprímelo — no hace falta tener `git` instalado.
+
 ```bash
-# 1. Clonar
+# 1. Clonar (o usa el ZIP de arriba)
 git clone https://github.com/ALFA117/moufut.git
 cd moufut
 
@@ -95,6 +97,25 @@ pear run --dev . mi-sala-de-prueba
 > Si `npm install` falla con `@qvac/sdk` o `@tetherto/wdk`, instala cada uno con
 > `@latest` y confirma la versión según la doc oficial (enlaces abajo). Estos SDKs
 > evolucionan rápido.
+
+### Distribución nativa vía Pear (`pear://`)
+
+Pear no genera instaladores tradicionales (`.exe`/`.dmg`) — su forma nativa de
+distribuir una app es un link `pear://<key>`, que funciona como un torrent: solo
+está disponible mientras alguien lo esté *sembrando* (`pear seed`). Si quieres
+publicar MouFut así:
+
+```bash
+npm install -g pear
+pear touch                                      # genera tu propio link pear://<key>
+pear stage --no-pre pear://<tu-key> .           # sube el código a ese link
+pear seed pear://<tu-key>                       # déjalo corriendo para que otros puedan instalarlo
+```
+
+Quien quiera instalarlo entonces corre `pear run pear://<tu-key>` (con el runtime
+Pear ya instalado) y la app se sincroniza directo, sin pasar por GitHub. El
+`--no-pre` salta el pre-script de `@qvac/sdk` durante el stage (falla en algunos
+entornos de CI/sandbox); quítalo si tu máquina lo soporta.
 
 ## Pruebas
 

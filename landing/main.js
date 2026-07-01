@@ -77,3 +77,12 @@ if (reduceMotion || !('IntersectionObserver' in window)) {
   )
   statNumbers.forEach((el) => countObserver.observe(el))
 }
+
+// ── Glow que sigue el cursor en las tarjetas "Por qué" ──────────────────────
+document.querySelectorAll('.why-card').forEach((card) => {
+  card.addEventListener('pointermove', (e) => {
+    const rect = card.getBoundingClientRect()
+    card.style.setProperty('--mx', `${e.clientX - rect.left}px`)
+    card.style.setProperty('--my', `${e.clientY - rect.top}px`)
+  })
+})

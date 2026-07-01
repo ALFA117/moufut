@@ -1,39 +1,39 @@
 # ⚽ MouFut
 
-**El companero de partido que funciona aunque se caiga el internet.**
+**El compañero de partido que funciona aunque se caiga el internet.**
 
-> *El partido pasa, no la conexion.*
+> *El partido pasa, no la conexión.*
 
 MouFut conecta a la hinchada de alrededor por una **malla peer-to-peer** (sin servidor),
-narra y traduce el partido con **IA que corre en tu propio telefono** (sin nube), y
+narra y traduce el partido con **IA que corre en tu propio teléfono** (sin nube), y
 liquida la **quiniela del grupo en USDt** sin intermediarios. Pensado para estadios
-llenos y bares a reventar durante el Mundial, donde no hay senal.
+llenos y bares a reventar durante el Mundial, donde no hay señal.
 
 Proyecto para la **Tether Developers Cup**.
 Pista: **QVAC (IA local)**, apoyada en **Pears (P2P)** y **WDK (carteras)**.
 
-🔗 **Página de presentación:** https://moufut.vercel.app *(landing estática — MouFut en sí es una app de escritorio P2P, no un sitio web; ver "Instalación y ejecución" abajo)*
+🔗 **Página de presentación:** https://moufut.vercel.app *(landing estática — MouFut en sí es una app de escritorio P2P, no un sitio web; ver "Instalación paso a paso" abajo)*
 
 ---
 
-## Por que MouFut
+## Por qué MouFut
 
-En un estadio lleno la red celular se satura y casi todas las apps de futbol mueren.
-MouFut vive justo ahi: todo lo importante sobrevive **sin internet**.
+En un estadio lleno la red celular se satura y casi todas las apps de fútbol mueren.
+MouFut vive justo ahí: todo lo importante sobrevive **sin internet**.
 
 - **Offline-first y resistente a censura** gracias a la malla P2P de Pears.
-- **Privado por diseno**: la IA corre en el dispositivo (QVAC). Tus datos nunca salen.
+- **Privado por diseño**: la IA corre en el dispositivo (QVAC). Tus datos nunca salen.
 - **Dinero entre amigos sin intermediarios**: quinielas autocustodiales en USDt (WDK).
 
 ## Las tres capas
 
-| Capa | Stack de Tether | Que hace |
+| Capa | Stack de Tether | Qué hace |
 |------|-----------------|----------|
-| **P2P** | Pears (Holepunch) | Descubrimiento de peers, chat de hinchada, reacciones a las jugadas, tablon de predicciones. Sin servidor. |
-| **IA** | QVAC SDK | Comentarista/analista tactico y **traduccion de voz en vivo**, todo **on-device**. |
+| **P2P** | Pears (Holepunch) | Descubrimiento de peers, chat de hinchada, reacciones a las jugadas, tablón de predicciones. Sin servidor. |
+| **IA** | QVAC SDK | Comentarista/analista táctico y **traducción de voz en vivo**, todo **on-device**. |
 | **Dinero** | WDK | Cartera autocustodial y quiniela en USDt liquidada peer-to-peer. |
 
-> **Regla de la pista QVAC:** toda la IA (inferencia, voz, traduccion) corre en el
+> **Regla de la pista QVAC:** toda la IA (inferencia, voz, traducción) corre en el
 > dispositivo mediante el SDK de QVAC. **Cero APIs de IA en la nube.**
 
 ## Arquitectura
@@ -46,9 +46,9 @@ MouFut vive justo ahi: todo lo importante sobrevive **sin internet**.
 │   CAPA P2P     │   CAPA IA      │  CAPA DINERO   │
 │   (Pears)      │   (QVAC)       │   (WDK)        │
 │ swarm/chat/    │ comentarista/  │ cartera +      │
-│ tablon         │ traductor      │ quiniela USDt  │
+│ tablón         │ traductor      │ quiniela USDt  │
 └───────────────┴───────────────┴───────────────┘
-     Todo corre en el telefono. Sin backend propio.
+     Todo corre en el teléfono. Sin backend propio.
 ```
 
 ## Estructura del repo
@@ -57,6 +57,7 @@ MouFut vive justo ahi: todo lo importante sobrevive **sin internet**.
 moufut/
 ├── app.js                 # entry point legacy (CLI/Bare, no lo usa la UI desktop)
 ├── package.json
+├── qvac.config.json        # plugins nativos de QVAC (completion, whisper, NMT)
 ├── README.md
 ├── LICENSE                # Apache 2.0
 ├── scripts/                # pruebas de P2P/quiniela/IA (ver "Pruebas")
@@ -70,33 +71,131 @@ moufut/
 
 ## Requisitos
 
-- **Node.js** 18+ (se probó con Node 22).
-- **Pears / Bare runtime**. Instalación: ver https://docs.pears.com/
+- **Node.js** 18+ (se probó con Node 22) — verifica con `node -v`.
+- **npm** (viene con Node).
+- **Pears / Bare runtime** — se instala en el Paso 1 de abajo. Doc oficial: https://docs.pears.com/
 - Salida **UDP** sin bloquear en tu red/firewall — Hyperswarm necesita UDP para el DHT (ver "Solución de problemas" si la malla no conecta).
-- Dos dispositivos (o dos terminales) para probar la malla P2P.
+- Dos dispositivos (o dos terminales en la misma máquina) si quieres probar la malla P2P con más de un peer.
+- ~1–2 GB libres de disco para los modelos de IA de QVAC (se descargan la primera vez que arranca la app).
 
-## Instalación y ejecución
+---
 
-**Opción rápida:** descarga el [ZIP del código](https://github.com/ALFA117/moufut/archive/refs/heads/master.zip) y descomprímelo — no hace falta tener `git` instalado.
+## Instalación paso a paso
+
+Sigue los pasos en orden. Cada uno indica qué deberías ver si salió bien, y a
+qué sección de "Solución de problemas" saltar si no.
+
+### Paso 1 — Instalar el runtime Pear (una sola vez por máquina)
 
 ```bash
-# 1. Clonar (o usa el ZIP de arriba)
-git clone https://github.com/ALFA117/moufut.git
-cd moufut
-
-# 2. Instalar dependencias
-npm install
-
-# 3. Arrancar (abre la ventana desktop: src/ui/index.html + src/ui/app.js)
-pear run --dev .            # o:  npm start
-
-# 4. Probar la malla: en otra terminal / otro dispositivo, mismo código de sala
-pear run --dev . mi-sala-de-prueba
+npm install -g pear
+pear --version
 ```
 
-> Si `npm install` falla con `@qvac/sdk` o `@tetherto/wdk`, instala cada uno con
-> `@latest` y confirma la versión según la doc oficial (enlaces abajo). Estos SDKs
-> evolucionan rápido.
+Debería imprimir un número de versión. Si el comando `pear` no se reconoce
+después de instalarlo, cierra y vuelve a abrir la terminal (o revisa que la
+carpeta global de npm esté en tu `PATH`).
+
+### Paso 2 — Obtener el código
+
+**Opción A — con git:**
+
+```bash
+git clone https://github.com/ALFA117/moufut.git
+cd moufut
+```
+
+**Opción B — sin git:** descarga el [ZIP del código](https://github.com/ALFA117/moufut/archive/refs/heads/master.zip),
+descomprímelo y abre una terminal dentro de esa carpeta.
+
+### Paso 3 — Instalar dependencias
+
+```bash
+npm install
+```
+
+Esto instala Hyperswarm/Hypercore (P2P), `@qvac/sdk` (IA) y `@tetherto/wdk`
++ `wdk-wallet-evm` (cartera). Puede tardar unos minutos la primera vez porque
+`@qvac/sdk` trae binarios nativos.
+
+> Si falla resolviendo `@qvac/sdk` o `@tetherto/wdk`, instala cada uno por
+> separado con `@latest` (`npm install @qvac/sdk@latest`) — estos SDKs siguen
+> en beta y cambian de versión seguido.
+
+### Paso 4 — Arrancar la app
+
+```bash
+npm start
+# equivalente a: pear run --dev .
+```
+
+Debería abrirse una ventana de escritorio con la interfaz de MouFut. La
+primera vez verás una barra de progreso ("Descargando modelo... X%") mientras
+QVAC baja los modelos de IA (comentarista, Whisper, traductor) — es normal
+que tarde uno o dos minutos según tu conexión. Cuando termine, el estado de
+IA debe decir **"Listo"**.
+
+Si la ventana no abre o se queda en blanco, revisa "El comentarista responde
+`[Stub] ...`" en Solución de problemas — a veces indica que el runtime no
+cargó bien los plugins nativos.
+
+### Paso 5 — Crear o importar tu cartera
+
+Dentro de la app, ve a la pestaña de **Cartera** y pulsa **"Nueva cartera"**.
+
+> ⚠️ **Importante — es una cartera de Ethereum mainnet real, no una testnet.**
+> MouFut usa el contrato real de USDt (ERC-20) en Ethereum mainnet y un RPC
+> público. La frase semilla (12 palabras) se genera con `bip39` y se guarda
+> **solo en el `localStorage` de tu dispositivo** — nunca sale de ahí ni se
+> comparte con nadie. Anótala en un lugar seguro apenas se muestre: es la
+> única forma de recuperar los fondos de esa cartera. Para pruebas, usa
+> montos pequeños o una cartera nueva sin fondos reales.
+
+Si ya tienes una cartera con una frase semilla existente, usa **"Importar
+cartera"** en vez de crear una nueva.
+
+### Paso 6 — Unirte a una sala P2P
+
+Cada sala es un código en la URL (`location.hash`). Por defecto todos caen en
+`moufut-default`; para una sala privada con tus amigos, arranca con un
+nombre propio:
+
+```bash
+pear run --dev . #mundial-mx-2026
+```
+
+Dentro de la app, el botón **"Copiar código de sala"** copia ese identificador
+para que lo compartas. Cualquiera que arranque MouFut con el mismo código de
+sala (mismo hash) entra a la misma malla P2P — no hace falta estar en la
+misma red local, Hyperswarm los encuentra vía DHT.
+
+### Paso 7 — Probar con un segundo peer
+
+En otra terminal, otro dispositivo, o incluso otra ventana en la misma
+máquina, repite el Paso 4 con el mismo código de sala:
+
+```bash
+pear run --dev . #mundial-mx-2026
+```
+
+En unos segundos el indicador de conexión debe pasar de "Buscando..." a
+**"P2P · 1 peer"**. Prueba mandar un mensaje de chat o una reacción (⚽ GOL,
+falta, VAR) — debe aparecer del otro lado casi al instante.
+
+### Paso 8 — Probar la quiniela
+
+Con al menos una cartera creada (Paso 5), ve a la pestaña de **Quiniela**,
+ingresa un marcador predicho y un monto en USDt, y pulsa **"Apostar"**. Cada
+apuesta se firma con tu identidad Ed25519 y se transmite a todos los peers de
+la sala; verás el ✓ verde de "firma verificada" junto a cada participante.
+Cuando termine el partido, cualquier peer reporta el marcador final y, si hay
+consenso por mayoría, el botón **"Liquidar pozo"** reparte el bote entre
+quienes acertaron.
+
+Con esto ya tienes el flujo completo funcionando: P2P + IA + quiniela USDt,
+todo sin servidor y sin salir del dispositivo.
+
+---
 
 ### Distribución nativa vía Pear (`pear://`)
 
@@ -116,6 +215,12 @@ Quien quiera instalarlo entonces corre `pear run pear://<tu-key>` (con el runtim
 Pear ya instalado) y la app se sincroniza directo, sin pasar por GitHub. El
 `--no-pre` salta el pre-script de `@qvac/sdk` durante el stage (falla en algunos
 entornos de CI/sandbox); quítalo si tu máquina lo soporta.
+
+> Este camino se evaluó como reemplazo del ZIP y se descartó por ahora: el
+> stage completo falla con `ASSET_NOT_FOUND` (bug de resolución de rutas de
+> `@qvac/sdk` dentro de Pear) y, aunque funcionara, pesaría ~15 GB por
+> bundlear binarios nativos de todas las plataformas a la vez. Detalle
+> completo en `TAREAS.md`.
 
 ## Pruebas
 
@@ -143,23 +248,31 @@ node scripts/test-ai-commentator.js   # comentarista QVAC (requiere runtime Bare
   runtime Bare/Pear — correr con `node` en vez de `pear run --dev .` hace que
   el worker no arranque y cae al stub de respaldo (funciona como está
   diseñado, pero no es inferencia real).
+- **El balance de la cartera se queda en `—`**: la app consulta el saldo real
+  de USDt en Ethereum mainnet vía un RPC público (`eth.llamarpc.com`); si ese
+  RPC está caído o lento, el balance puede tardar o fallar en cargar. No es
+  un error de tu cartera.
+- **Perdiste la frase semilla**: no hay forma de recuperarla — no queda
+  guardada en ningún servidor, solo en el `localStorage` del dispositivo
+  donde se creó. Crea una cartera nueva y, si tenía fondos reales, muévelos
+  antes de perder el acceso.
 
 ## Estado actual (roadmap por rondas del hackathon)
 
 - [x] **Ronda X** — andamiaje del repo, estructura y stubs comentados.
 - [x] **Octavos** — P2P real (Hyperswarm) + comentarista QVAC on-device, verificado con `scripts/test-p2p-local.js`.
-- [x] **Cuartos** — reacciones a jugadas, tablón de predicciones, traducción de voz on-device, UI desktop completa. Video de 3 min pendiente de grabar (ver `demo/guion.md`).
+- [x] **Cuartos** — reacciones a jugadas, tablón de predicciones, traducción de voz on-device, UI desktop completa.
 - [x] **Semis** — WDK integrado: quiniela de USDt con firmas Ed25519, consenso por mayoría, sync de estado para peers que se unen tarde.
-- [ ] **Final** — demo en vivo sobre un partido real del Mundial (ver `TAREAS.md` para el detalle de lo que falta).
+- [ ] **Final** — demo en vivo sobre un partido real del Mundial. Falta: probar en 2+ dispositivos físicos, probar con red congestionada/sin internet, grabar el video final (<3 min, ver `demo/guion.md`), y publicar el release `v1.0` en GitHub. Ver `TAREAS.md` para el detalle completo.
 
-## Servicios de terceros / divulgacion
+## Servicios de terceros / divulgación
 
 - **QVAC SDK** (`@qvac/sdk`) — IA on-device. Sin APIs de IA en la nube.
-- **WDK** (`@tetherto/wdk`) — cartera autocustodial; las llaves nunca salen del dispositivo.
+- **WDK** (`@tetherto/wdk`) — cartera autocustodial; las llaves nunca salen del dispositivo. Opera sobre **Ethereum mainnet real** con el contrato oficial de USDt y un RPC público (`eth.llamarpc.com`) — no es una testnet.
 - **Pears / Holepunch** (`hyperswarm`, `hypercore`, `autobase`) — transporte P2P.
 - No se usan backends propios ni servicios de IA en la nube.
 
-## Documentacion oficial de las plataformas
+## Documentación oficial de las plataformas
 
 - Pears (P2P): https://docs.pears.com/
 - QVAC (IA local): https://docs.qvac.tether.io/

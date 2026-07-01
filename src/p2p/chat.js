@@ -1,5 +1,18 @@
 import crypto from 'crypto'
 
+/**
+ * Chat de texto sobre un swarm ya conectado (ver `createSwarm`). Mantiene un
+ * historial local en memoria; no persiste ni se sincroniza para peers que se
+ * unen tarde (a diferencia de la quiniela en `wallet/pool.js`).
+ *
+ * @param {ReturnType<import('./swarm.js').createSwarm> extends Promise<infer T> ? T : never} swarm
+ * @returns {{
+ *   myId: string,
+ *   history: Array<{type:'chat', from:string, text:string, ts:number, fromPeer:string, at:number}>,
+ *   send: (text: string) => void,
+ *   onMessage: (cb: (entry: object) => void) => void,
+ * }}
+ */
 export function createChat(swarm) {
   const myId = crypto.randomBytes(4).toString('hex')
   const history = []

@@ -2,50 +2,56 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
   <title>MouFut</title>
+  <!-- Orbitron (HUD numerics) + JetBrains Mono (crypto data) — font-display:swap evita FOIT -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;500;600&display=swap" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
-  <!-- HEADER -->
+  <!-- ── SKIP LINK (a11y) ──────────────────────────────────────────── -->
+  <a class="skip-link" href="#main-content">Saltar al contenido principal</a>
+
+  <!-- ── HEADER ────────────────────────────────────────────────────── -->
   <header class="app-header">
     <div class="header-inner">
-      <div class="logo">
+      <div class="logo" aria-label="MouFut">
         <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
-          <circle cx="14" cy="14" r="13" stroke="#00E676" stroke-width="2"/>
-          <path d="M14 4 L17 10 L23 10 L18 14 L20 20 L14 17 L8 20 L10 14 L5 10 L11 10 Z" fill="#00E676" opacity="0.15" stroke="#00E676" stroke-width="1.5"/>
+          <circle cx="14" cy="14" r="13" stroke="#00B368" stroke-width="2"/>
+          <path d="M14 4 L17 10 L23 10 L18 14 L20 20 L14 17 L8 20 L10 14 L5 10 L11 10 Z"
+                fill="#00B368" opacity="0.15" stroke="#00B368" stroke-width="1.5"/>
         </svg>
         <span class="logo-text">MouFut</span>
       </div>
       <div class="header-status">
         <span class="status-dot" id="connectionDot" aria-label="Estado de conexión"></span>
         <span class="status-label" id="connectionLabel">P2P</span>
-        <span class="peers-count" id="peersCount">0 peers</span>
+        <span class="peers-count" id="peersCount" aria-live="polite">0 peers</span>
       </div>
     </div>
   </header>
 
-  <!-- MAIN CONTENT -->
-  <main class="app-main">
+  <!-- ── MAIN ──────────────────────────────────────────────────────── -->
+  <main class="app-main" id="main-content">
 
-    <!-- PANTALLA 1: SALA DE PARTIDO -->
-    <section class="screen active" id="screen-partido" role="main" aria-label="Sala de partido">
+    <!-- ── PANTALLA 1: SALA DE PARTIDO ────────────────────────── -->
+    <section class="screen active" id="screen-partido" aria-label="Sala de partido">
 
-      <!-- Match Info Card -->
       <div class="glass-card match-info">
         <div class="match-teams">
           <div class="team">
-            <div class="team-badge">MX</div>
+            <div class="team-badge" aria-hidden="true">MX</div>
             <span class="team-name">México</span>
           </div>
-          <div class="match-score">
+          <div class="match-score" aria-label="Marcador" aria-live="polite">
             <span class="score" id="scoreHome">0</span>
-            <span class="score-sep">:</span>
+            <span class="score-sep" aria-hidden="true">:</span>
             <span class="score" id="scoreAway">0</span>
           </div>
           <div class="team">
-            <div class="team-badge">AR</div>
+            <div class="team-badge" aria-hidden="true">AR</div>
             <span class="team-name">Argentina</span>
           </div>
         </div>
@@ -55,34 +61,34 @@
         </div>
       </div>
 
-      <!-- Reactions Bar -->
-      <div class="reactions-bar" role="group" aria-label="Reacciones">
-        <button class="reaction-btn" data-reaction="gol" aria-label="Gol">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <!-- Reactions -->
+      <div class="reactions-bar" role="group" aria-label="Reacciones rápidas">
+        <button class="reaction-btn" data-reaction="gol" aria-label="Reacción GOL">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <circle cx="12" cy="12" r="10"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>
           </svg>
           <span class="reaction-label">GOL</span>
         </button>
-        <button class="reaction-btn" data-reaction="falta" aria-label="Falta">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <button class="reaction-btn" data-reaction="falta" aria-label="Reacción FALTA">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <rect x="4" y="2" width="6" height="16" rx="1"/><rect x="14" y="6" width="6" height="16" rx="1"/>
           </svg>
           <span class="reaction-label">FALTA</span>
         </button>
-        <button class="reaction-btn" data-reaction="var" aria-label="VAR">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <button class="reaction-btn" data-reaction="var" aria-label="Reacción VAR">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
           </svg>
           <span class="reaction-label">VAR</span>
         </button>
-        <button class="reaction-btn" data-reaction="roja" aria-label="Tarjeta roja">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-            <rect x="7" y="2" width="10" height="14" rx="2" fill="#FF1744" stroke="#FF1744"/>
+        <button class="reaction-btn" data-reaction="roja" aria-label="Reacción tarjeta ROJA">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="7" y="2" width="10" height="14" rx="2" fill="#F01E3C" stroke="#F01E3C"/>
           </svg>
           <span class="reaction-label">ROJA</span>
         </button>
-        <button class="reaction-btn" data-reaction="fuera" aria-label="Fuera">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <button class="reaction-btn" data-reaction="fuera" aria-label="Reacción FUERA">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <path d="M18 6L6 18M6 6l12 12"/>
           </svg>
           <span class="reaction-label">FUERA</span>
@@ -93,7 +99,7 @@
       <div class="chat-container">
         <div class="chat-messages" id="chatMessages" aria-live="polite" aria-label="Chat de hinchada">
           <div class="chat-empty">
-            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="#00E676" stroke-width="1.5" opacity="0.4" aria-hidden="true">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="#00B368" stroke-width="1.5" opacity="0.4" aria-hidden="true">
               <path d="M20 4C11.2 4 4 10.3 4 18c0 3.5 1.4 6.7 3.8 9.1L6 34l7.3-2.3C15.4 32.5 17.6 33 20 33c8.8 0 16-6.3 16-15S28.8 4 20 4z"/>
             </svg>
             <p>Nadie en la sala aún.<br/>Comparte el código para que tu banda se una.</p>
@@ -105,20 +111,16 @@
           <code class="room-code" id="roomCode">moufut-default</code>
           <button class="btn-copy" id="btnCopyRoom" aria-label="Copiar código de sala">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-              <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+              <rect x="9" y="9" width="13" height="13" rx="2"/>
+              <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
             </svg>
           </button>
         </div>
 
         <form class="chat-input-row" id="chatForm" autocomplete="off">
-          <input
-            type="text"
-            id="chatInput"
-            class="chat-input"
-            placeholder="Escribe algo..."
-            maxlength="200"
-            aria-label="Mensaje al chat"
-          />
+          <label class="sr-only" for="chatInput">Mensaje al chat</label>
+          <input type="text" id="chatInput" class="chat-input"
+            placeholder="Escribe algo..." maxlength="200" aria-label="Mensaje al chat"/>
           <button type="submit" class="btn-send" aria-label="Enviar mensaje">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/>
@@ -129,28 +131,39 @@
 
     </section>
 
-    <!-- PANTALLA 2: COMENTARISTA IA -->
-    <section class="screen" id="screen-ia" role="main" aria-label="Comentarista IA">
+    <!-- ── PANTALLA 2: COMENTARISTA IA ────────────────────────── -->
+    <section class="screen" id="screen-ia" aria-label="Comentarista IA MouBot">
 
       <div class="ia-header glass-card">
         <div class="ia-avatar" aria-hidden="true">
           <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
-            <circle cx="18" cy="18" r="17" fill="rgba(0,230,118,0.1)" stroke="#00E676" stroke-width="1.5"/>
-            <path d="M10 18h16M18 10v16" stroke="#00E676" stroke-width="2" stroke-linecap="round"/>
-            <circle cx="18" cy="18" r="4" fill="#00E676" opacity="0.3"/>
+            <circle cx="18" cy="18" r="17" fill="rgba(0,179,104,0.1)" stroke="#00B368" stroke-width="1.5"/>
+            <path d="M10 18h16M18 10v16" stroke="#00B368" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="18" cy="18" r="4" fill="#00B368" opacity="0.3"/>
           </svg>
         </div>
         <div class="ia-info">
           <h2 class="ia-name">MouBot</h2>
           <span class="ia-badge">IA on-device · QVAC</span>
         </div>
-        <div class="ia-status-indicator" id="iaIndicator" aria-label="Estado IA">
-          <span class="pulse-dot"></span>
-          <span class="ia-status-text" id="iaStatusText">Listo</span>
+        <div class="ia-status-indicator" aria-live="polite" aria-label="Estado del modelo IA">
+          <span class="pulse-dot" aria-hidden="true"></span>
+          <span class="ia-status-text" id="iaStatusText">Cargando...</span>
         </div>
       </div>
 
-      <!-- Commentary Feed -->
+      <!-- Model loading progress -->
+      <div class="model-progress-card glass-card" id="modelProgressCard" hidden>
+        <div class="progress-header">
+          <span class="progress-label">Descargando modelo QVAC</span>
+          <span class="progress-pct" id="modelProgressPct">0%</span>
+        </div>
+        <div class="progress-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="modelProgressBar">
+          <div class="progress-fill" id="modelProgressFill"></div>
+        </div>
+        <p class="progress-hint">Solo la primera vez — el modelo se guarda en el dispositivo.</p>
+      </div>
+
       <div class="commentary-feed" id="commentaryFeed" aria-live="polite" aria-label="Comentarios de MouBot">
         <div class="commentary-item featured">
           <div class="comment-meta">
@@ -166,33 +179,38 @@
           </div>
           <p class="comment-text">Presión alta de Argentina que forzó el error en salida. El portero resuelve con un despeje largo que genera contra.</p>
         </div>
-        <div class="commentary-placeholder" id="commentaryPlaceholder" aria-hidden="true">
-          <div class="typing-dots">
+        <div class="commentary-placeholder" id="commentaryPlaceholder">
+          <div class="typing-dots" aria-hidden="true">
             <span></span><span></span><span></span>
           </div>
           <span>MouBot analizando...</span>
         </div>
       </div>
 
-      <!-- Ask IA -->
+      <!-- Tactical analysis -->
+      <div class="glass-card tactical-card">
+        <button class="btn-tactical" id="btnTactical">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/>
+            <path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/>
+          </svg>
+          Análisis táctico completo
+        </button>
+      </div>
+
       <div class="ia-ask-section">
         <p class="ia-ask-label">Pregunta a MouBot</p>
         <div class="ia-quick-actions" role="group" aria-label="Preguntas rápidas">
           <button class="btn-quick" data-question="¿Qué táctica usa México?">Táctica México</button>
-          <button class="btn-quick" data-question="¿Quién va ganando el duelo al mediocampo?">Medio</button>
+          <button class="btn-quick" data-question="¿Quién gana el duelo en el mediocampo?">Mediocampo</button>
           <button class="btn-quick" data-question="¿Cuál es la mejor jugada del partido?">Mejor jugada</button>
           <button class="btn-quick" data-question="¿Cómo puede marcar Argentina?">Cómo marcar</button>
         </div>
         <form class="ia-input-row" id="iaForm" autocomplete="off">
-          <input
-            type="text"
-            id="iaInput"
-            class="ia-input"
-            placeholder="¿Qué opinas sobre...?"
-            maxlength="150"
-            aria-label="Pregunta para MouBot"
-          />
-          <button type="submit" class="btn-ask" aria-label="Preguntar a MouBot">
+          <label class="sr-only" for="iaInput">Pregunta para MouBot</label>
+          <input type="text" id="iaInput" class="ia-input"
+            placeholder="¿Qué opinas sobre...?" maxlength="150" aria-label="Pregunta para MouBot"/>
+          <button type="submit" class="btn-ask" aria-label="Enviar pregunta a MouBot">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/>
             </svg>
@@ -202,39 +220,53 @@
 
     </section>
 
-    <!-- PANTALLA 3: QUINIELA USDt -->
-    <section class="screen" id="screen-quiniela" role="main" aria-label="Quiniela USDt">
+    <!-- ── PANTALLA 3: QUINIELA USDt ──────────────────────────── -->
+    <section class="screen" id="screen-quiniela" aria-label="Quiniela USDt">
 
       <!-- Wallet Card -->
-      <div class="glass-card wallet-card">
-        <div class="wallet-header">
-          <div class="wallet-icon" aria-hidden="true">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFB300" stroke-width="2">
-              <rect x="2" y="5" width="20" height="14" rx="2"/><path d="M16 12a1 1 0 100-2 1 1 0 000 2z" fill="#FFB300"/>
-            </svg>
+      <div class="glass-card wallet-card" id="walletCard">
+        <!-- Skeleton mientras carga WDK -->
+        <div class="wallet-skeleton" id="walletSkeleton" aria-label="Cargando cartera..." aria-busy="true">
+          <div class="skeleton skeleton-icon"></div>
+          <div class="skeleton-info">
+            <div class="skeleton skeleton-line short"></div>
+            <div class="skeleton skeleton-line"></div>
           </div>
-          <div class="wallet-info">
-            <span class="wallet-label">Mi cartera</span>
-            <span class="wallet-address" id="walletAddress">0x...carga</span>
-          </div>
-          <div class="wallet-balance">
-            <span class="balance-amount" id="walletBalance">—</span>
-            <span class="balance-currency">USDt</span>
-          </div>
+          <div class="skeleton skeleton-amount"></div>
         </div>
-        <div class="wallet-actions">
-          <button class="btn-wallet-action" id="btnCreateWallet">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-              <path d="M12 5v14M5 12h14"/>
-            </svg>
-            Nueva cartera
-          </button>
-          <button class="btn-wallet-action secondary" id="btnImportWallet">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
-            </svg>
-            Importar
-          </button>
+
+        <!-- Contenido real (oculto hasta que WDK listo) -->
+        <div class="wallet-content" id="walletContent" hidden>
+          <div class="wallet-header">
+            <div class="wallet-icon" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F01E3C" stroke-width="2">
+                <rect x="2" y="5" width="20" height="14" rx="2"/>
+                <path d="M16 12a1 1 0 100-2 1 1 0 000 2z" fill="#F01E3C"/>
+              </svg>
+            </div>
+            <div class="wallet-info">
+              <span class="wallet-label">Mi cartera</span>
+              <span class="wallet-address" id="walletAddress" title="Dirección completa">Sin cartera</span>
+            </div>
+            <div class="wallet-balance">
+              <span class="balance-amount" id="walletBalance">—</span>
+              <span class="balance-currency">USDt</span>
+            </div>
+          </div>
+          <div class="wallet-actions">
+            <button class="btn-wallet-action" id="btnCreateWallet">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M12 5v14M5 12h14"/>
+              </svg>
+              Nueva cartera
+            </button>
+            <button class="btn-wallet-action secondary" id="btnImportWallet">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+              </svg>
+              Importar
+            </button>
+          </div>
         </div>
       </div>
 
@@ -242,7 +274,7 @@
       <div class="glass-card pool-card">
         <div class="pool-header">
           <h2 class="pool-title">Quiniela del grupo</h2>
-          <div class="pool-pot">
+          <div class="pool-pot" aria-live="polite" aria-label="Total del pozo">
             <span class="pot-amount" id="poolAmount">0</span>
             <span class="pot-label">USDt en el pozo</span>
           </div>
@@ -278,61 +310,94 @@
         <div class="bet-score-input">
           <div class="score-field">
             <label class="score-label" for="betHome">México</label>
-            <input
-              type="number"
-              id="betHome"
-              class="score-input"
-              min="0"
-              max="20"
-              value="0"
-              aria-label="Goles México"
-            />
+            <input type="number" id="betHome" class="score-input"
+              min="0" max="20" value="0" inputmode="numeric" aria-label="Goles México"/>
           </div>
           <span class="score-sep-bet" aria-hidden="true">:</span>
           <div class="score-field">
             <label class="score-label" for="betAway">Argentina</label>
-            <input
-              type="number"
-              id="betAway"
-              class="score-input"
-              min="0"
-              max="20"
-              value="0"
-              aria-label="Goles Argentina"
-            />
+            <input type="number" id="betAway" class="score-input"
+              min="0" max="20" value="0" inputmode="numeric" aria-label="Goles Argentina"/>
           </div>
         </div>
         <div class="bet-amount-row">
           <label class="bet-amount-label" for="betAmount">Apuesta (USDt)</label>
           <div class="bet-amount-input-wrap">
-            <input
-              type="number"
-              id="betAmount"
-              class="bet-amount-input"
-              min="1"
-              step="0.5"
-              value="5"
-              aria-label="Monto de apuesta en USDt"
-            />
+            <input type="number" id="betAmount" class="bet-amount-input"
+              min="1" step="0.5" value="5" inputmode="decimal" aria-label="Monto de apuesta en USDt"/>
             <span class="bet-currency">USDt</span>
           </div>
         </div>
         <button class="btn-bet" id="btnPlaceBet">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <svg class="bet-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
           </svg>
-          Apostar
+          <svg class="bet-spinner" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+          </svg>
+          <span class="bet-label">Apostar</span>
         </button>
-        <p class="bet-disclaimer">Las llaves nunca salen de tu dispositivo. Liquidación P2P automática.</p>
+        <p class="bet-disclaimer">Las llaves nunca salen de tu dispositivo. Firma on-device con tu keypair Hyperswarm.</p>
+      </div>
+
+      <!-- Reportar marcador final -->
+      <div class="glass-card report-score-card" id="reportScoreCard">
+        <div class="report-score-header">
+          <div>
+            <h3 class="report-score-title">Reportar marcador final</h3>
+            <p class="report-score-subtitle">Cuando la mayoría confirme el mismo resultado, la quiniela se liquida automáticamente.</p>
+          </div>
+          <div class="consensus-badge" id="consensusBadge" hidden>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            CONSENSO
+          </div>
+        </div>
+
+        <!-- Consensus reports bar -->
+        <div class="consensus-reports" id="consensusReports" hidden>
+          <p class="consensus-label">Reportes recibidos:</p>
+          <div class="consensus-list" id="consensusList"></div>
+        </div>
+
+        <div class="report-score-inputs">
+          <div class="score-field">
+            <label class="score-label" for="finalHome">México</label>
+            <input type="number" id="finalHome" class="score-input"
+              min="0" max="20" value="0" inputmode="numeric" aria-label="Goles finales México"/>
+          </div>
+          <span class="score-sep-bet" aria-hidden="true">:</span>
+          <div class="score-field">
+            <label class="score-label" for="finalAway">Argentina</label>
+            <input type="number" id="finalAway" class="score-input"
+              min="0" max="20" value="0" inputmode="numeric" aria-label="Goles finales Argentina"/>
+          </div>
+        </div>
+
+        <div class="report-actions">
+          <button class="btn-report" id="btnReportScore">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M9 12l2 2 4-4"/>
+              <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
+            </svg>
+            Confirmar marcador
+          </button>
+          <button class="btn-liquidate" id="btnLiquidate" hidden>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+            </svg>
+            Liquidar pozo
+          </button>
+        </div>
       </div>
 
     </section>
-
   </main>
 
-  <!-- BOTTOM NAV -->
+  <!-- ── BOTTOM NAV ─────────────────────────────────────────────────── -->
   <nav class="bottom-nav" role="navigation" aria-label="Navegación principal">
-    <button class="nav-item active" data-screen="partido" aria-label="Sala de partido" aria-current="page">
+    <button class="nav-item active" data-screen="partido" aria-current="page" aria-label="Sala de partido">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
         <circle cx="12" cy="12" r="10"/>
         <path d="M12 2 C12 2 8 7 8 12 S12 22 12 22" stroke-width="1.5"/>
@@ -340,7 +405,7 @@
       </svg>
       <span class="nav-label">Partido</span>
     </button>
-    <button class="nav-item" data-screen="ia" aria-label="Comentarista IA">
+    <button class="nav-item" data-screen="ia" aria-label="Comentarista IA MouBot">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
         <rect x="3" y="3" width="18" height="14" rx="2"/>
         <path d="M8 21h8M12 17v4"/>
@@ -348,15 +413,79 @@
       </svg>
       <span class="nav-label">MouBot</span>
     </button>
-    <button class="nav-item" data-screen="quiniela" aria-label="Quiniela USDt">
+    <button class="nav-item" data-screen="quiniela" aria-label="Quiniela USDt" id="quinielaNavBtn">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
         <rect x="2" y="5" width="20" height="14" rx="2"/>
         <path d="M2 10h20"/>
         <circle cx="16" cy="15" r="1.5" fill="currentColor"/>
       </svg>
       <span class="nav-label">Quiniela</span>
+      <span class="nav-badge" id="quinielaBadge" hidden aria-label="apuestas activas"></span>
     </button>
   </nav>
+
+  <!-- ── MODAL: IMPORTAR CARTERA ───────────────────────────────────── -->
+  <div class="modal-overlay" id="importModalOverlay" hidden aria-modal="true" role="dialog" aria-labelledby="importModalTitle">
+    <div class="modal-card glass-card">
+      <button class="modal-close" id="btnImportClose" aria-label="Cerrar">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+      <h2 class="modal-title" id="importModalTitle">Importar cartera</h2>
+      <p class="modal-subtitle">Ingresa tu frase semilla BIP-39 de 12 palabras separadas por espacios.</p>
+      <div class="modal-field">
+        <label class="modal-label" for="mnemonicInput">Frase semilla</label>
+        <textarea id="mnemonicInput" class="mnemonic-input" rows="3"
+          placeholder="palabra1 palabra2 palabra3 ... palabra12"
+          autocomplete="off" autocorrect="off" spellcheck="false"
+          aria-describedby="mnemonicHint"></textarea>
+        <p class="mnemonic-hint" id="mnemonicHint">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <rect x="3" y="11" width="18" height="11" rx="2"/>
+            <path d="M7 11V7a5 5 0 0110 0v4"/>
+          </svg>
+          Tu frase nunca sale del dispositivo.
+        </p>
+        <p class="modal-error" id="mnemonicError" hidden role="alert"></p>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-modal-primary" id="btnImportConfirm">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+          </svg>
+          Importar
+        </button>
+        <button class="btn-modal-secondary" id="btnImportCancel">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MODAL: LIQUIDACIÓN / GANADOR ──────────────────────────────── -->
+  <div class="settlement-overlay" id="settlementOverlay" hidden aria-modal="true" role="dialog" aria-labelledby="settlementTitle">
+    <div class="settlement-card glass-card">
+      <div class="settlement-burst" id="settlementBurst" aria-hidden="true"></div>
+      <div class="settlement-icon" aria-hidden="true">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+          <circle cx="24" cy="24" r="23" stroke="#F01E3C" stroke-width="2"/>
+          <path d="M24 8v8M24 32v8M8 24h8M32 24h8" stroke="#F01E3C" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="24" cy="24" r="8" fill="#F01E3C" opacity="0.2"/>
+          <circle cx="24" cy="24" r="4" fill="#F01E3C"/>
+        </svg>
+      </div>
+      <h2 class="settlement-title" id="settlementTitle">Quiniela liquidada</h2>
+      <div class="settlement-score" id="settlementScore"></div>
+      <div class="settlement-result" id="settlementResult"></div>
+      <div class="settlement-amount" id="settlementAmount"></div>
+      <div class="settlement-winners" id="settlementWinners"></div>
+      <button class="btn-settlement-close" id="btnSettlementClose">
+        Cerrar
+      </button>
+    </div>
+  </div>
+
+  <!-- ── ARIA live region para anuncios generales ───────────────────── -->
+  <div id="announcer" class="sr-only" aria-live="assertive" aria-atomic="true"></div>
 
   <script type="module" src="app.js"></script>
 </body>

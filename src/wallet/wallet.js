@@ -20,6 +20,22 @@ function makeWdk(mnemonic) {
   })
 }
 
+/**
+ * Cartera EVM autocustodial (WDK de Tether). La frase semilla BIP-39 nunca
+ * sale del dispositivo — se guarda solo en `localStorage` local y se usa
+ * para derivar la cuenta 0 de Ethereum vía `@tetherto/wdk-wallet-evm`.
+ * Si ya existe una mnemonic guardada, se restaura automáticamente al crear.
+ *
+ * @returns {Promise<{
+ *   address: string|null,
+ *   mnemonic: string|null,
+ *   create: () => Promise<{address:string, mnemonic:string}>,
+ *   importFromMnemonic: (phrase: string) => Promise<{address:string}>,
+ *   getBalance: () => Promise<number|null>,
+ *   signAndSend: (tx: {to:string, amount:number}) => Promise<unknown>,
+ *   destroy: () => void,
+ * }>}
+ */
 export async function createWallet() {
   let mnemonic = loadMnemonic()
   let wdk      = null

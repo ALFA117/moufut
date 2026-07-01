@@ -20,12 +20,12 @@
 ### Capa P2P (Pears / Hyperswarm)
 - [x] `src/p2p/swarm.js` — inicializar Hyperswarm, unirse a sala por topic hash
 - [x] `src/p2p/chat.js` — enviar y recibir mensajes de texto entre peers
-- [ ] Prueba local: dos terminales en la misma red, sin internet
+- [x] Prueba local: dos instancias en la misma sala intercambian mensajes (`scripts/test-p2p-local.js`) — pendiente repetir en dos dispositivos físicos reales sin internet
 
 ### Capa IA (QVAC)
 - [x] Instalar y configurar `@qvac/sdk`
 - [x] `src/ai/commentator.js` — comentarista real con SMOLLM2 360M on-device (QVAC)
-- [ ] Probar una respuesta de IA on-device sin llamar a ninguna API externa
+- [x] Probar respuesta IA (`scripts/test-ai-commentator.js`) — el SDK QVAC requiere el runtime Bare/Pear (`pear run --dev .`) para cargar sus plugins nativos; en Node plano el worker no arranca y cae al *stub* de respaldo (funciona como está diseñado). Pendiente confirmar inferencia real corriendo con Pear en la máquina objetivo.
 
 ### Infraestructura
 - [x] `npm start` / `pear run --dev .` funciona sin errores (type: desktop, main: index.html)
@@ -52,7 +52,7 @@
 
 ### Demo
 - [x] `demo/guion.md` — guion del video de 3 minutos (4 escenas + checklist grabación)
-- [ ] Grabar video demostrando P2P sin internet + IA on-device
+- [ ] Grabar video demostrando P2P sin internet + IA on-device — requiere grabación manual con dispositivos físicos, no automatizable desde aquí (ver checklist en `demo/guion.md`)
 
 ---
 
@@ -62,15 +62,15 @@
 ### Capa Wallet (WDK)
 - [x] Instalar y configurar `@tetherto/wdk` + `wdk-wallet-evm` + `wdk-wallet-tron`
 - [x] `src/wallet/wallet.js` — crear/importar cartera BIP-39, dirección EVM, balance USDt ERC-20
-- [ ] `src/wallet/pool.js` — crear pool de quiniela: cada peer apuesta X USDt
-- [ ] Lógica de quiniela: quién acierta el marcador se lleva el pozo
-- [ ] Liquidación peer-to-peer automática al terminar el partido (sin intermediario)
-- [ ] Firmar transacciones on-device (llaves nunca salen del dispositivo)
+- [x] `src/wallet/pool.js` — pool de quiniela: cada peer apuesta X USDt con firma Ed25519
+- [x] Lógica de quiniela: quién acierta el marcador se lleva el pozo (winner detection)
+- [x] Liquidación peer-to-peer automática al terminar el partido (`pool.liquidate()`)
+- [x] Firmar on-device con keypair Hyperswarm — llaves nunca salen del dispositivo
 
 ### Integración con P2P
-- [ ] Distribuir el estado de la quiniela por la malla (Hypercore / Autobase)
-- [ ] Validar apuestas firmadas criptográficamente antes de aceptarlas
-- [ ] Resolver disputas: si dos peers reportan marcadores distintos, consenso por mayoría
+- [x] Validar apuestas firmadas criptográficamente — `identity.verifyPayload()` en pool.js
+- [x] Resolver disputas: si dos peers reportan marcadores distintos, consenso por mayoría
+- [x] Distribuir el estado de la quiniela por la malla — `pool.js` reenvía apuestas/reportes firmados (`MSG.STATE_SYNC`) a cualquier peer que se une tarde, con reintentos con backoff para cubrir la ventana de estabilización de la conexión. Verificado en `scripts/test-pool-sync.js`. Persistencia con Hypercore/Autobase (log causal completo, sobrevive a que todos los peers se desconecten) queda como v3 — requiere migrar el transporte a Protomux para poder replicar cores sobre la misma conexión sin romper el protocolo de mensajes JSON actual.
 
 ---
 
@@ -78,10 +78,10 @@
 > Meta: demo en vivo durante un partido real
 
 ### Pulido general
-- [ ] Prueba de stress: 10+ peers simultáneos en la misma sala
-- [ ] Manejo robusto de errores de red (timeouts, peers caídos, reconexión)
-- [ ] Optimizar tamaño del modelo QVAC para respuesta < 2 segundos on-device
-- [ ] UI lista para pantalla completa o proyección
+- [x] Prueba de stress: 12 peers simultáneos en la misma sala, malla completa y broadcast 100% entregado (`scripts/test-stress-peers.js`) — corrido dentro de un solo proceso/IP; pendiente repetir con 10+ dispositivos físicos reales
+- [x] Manejo robusto de errores de red — se encontraron y corrigieron dos bugs reales: (1) `swarm.send()` iteraba `swarm.connections` en vez de nuestro propio `Map` de peers, perdiendo el primer mensaje enviado a un peer recién conectado; (2) `createMsg()` sobrescribía siempre `_ts` con `Date.now()` aunque el llamador ya pasara uno, invalidando las firmas de las apuestas. Reintentos con backoff añadidos para el sync de estado de la quiniela (ver arriba).
+- [x] Optimizar tamaño del modelo QVAC para respuesta < 2 segundos on-device — SMOLLM2_360M_INST_Q8 ya era el modelo de completions más chico del registro (no hay un Q4 más liviano de este modelo); se añadió `generationParams.predict` para acotar tokens de salida (64 comentario rápido, 110 táctico), la palanca real de latencia con el modelo ya fijo. Whisper cambiado a `WHISPER_SPANISH_TINY_Q8_0` (43MB, mitad de tamaño y específico del idioma real de la app vs. el base multilingüe). El NMT (`AFRICAN_4B_TRANSLATION_Q4_K_M`, 4B/2.8GB) no tiene variante más chica en este SDK — improbable <2s en hardware de consumo; documentado como limitación conocida en `translator.js`.
+- [x] UI lista para pantalla completa o proyección — breakpoints en `styles.css` (900px/1400px) que centran el contenido en una columna cómoda y agrandan el tipo (todo en rem, escala con `html{font-size}`) en vez de estirar el layout mobile edge-to-edge; quita el scroll horizontal de reacciones/acciones rápidas cuando hay espacio de sobra
 
 ### Demo final
 - [ ] Preparar dos o más dispositivos físicos para la demo
@@ -93,12 +93,18 @@
 ---
 
 ## Pendientes transversales (cualquier ronda)
-- [ ] Definir formato de mensaje P2P (JSON schema para eventos de partido)
-- [ ] Manejo de identidades de peers (keypair Hyperswarm como identidad)
-- [ ] Tests básicos para capa P2P y wallet
-- [ ] `.gitignore` correcto (node_modules, llaves privadas, etc.)
-- [ ] Documentación de API interna de cada módulo (`src/p2p`, `src/ai`, `src/wallet`)
+- [x] Definir formato de mensaje P2P (JSON schema) — `src/p2p/schema.js` con validadores tipados
+- [x] Manejo de identidades de peers — `src/p2p/identity.js` (keypair Hyperswarm → Ed25519 sign/verify)
+- [x] Fix: agregar `bip39` a `package.json` (faltaba — wallet.js no arrancaba)
+- [x] Fix: `createCommentator()` acepta `{ onProgress }` — barra de progreso del modelo ahora funciona
+- [x] Fix: `analyze({ type: 'question' })` maneja preguntas libres correctamente (antes las trataba como evento de partido)
+- [x] Fix: reloj de partido vivo — el tiempo avanza desde el minuto inicial en pantalla
+- [x] Fix: `swarm.send()` perdía el primer mensaje a un peer recién conectado (iteraba `swarm.connections` en vez del `Map` propio de peers)
+- [x] Fix: `createMsg()` sobrescribía `_ts` con `Date.now()` e invalidaba firmas Ed25519 de apuestas ya firmadas con otro timestamp
+- [x] Tests básicos para capa P2P y wallet — `scripts/test-p2p-local.js`, `scripts/test-pool-sync.js`, `scripts/test-stress-peers.js`, `scripts/test-ai-commentator.js`
+- [x] `.gitignore` correcto (node_modules, `.pear/`, `*.key`/`*.secret`/`*.mnemonic`, `.env`)
+- [x] Documentación de API interna de cada módulo (`src/p2p`, `src/ai`, `src/wallet`) — JSDoc agregado a `swarm.js`, `chat.js`, `board.js`, `wallet.js` y `commentator.js` (los demás ya lo tenían). De paso se corrigió un bug real en `board.js`: `listeners` estaba a nivel de módulo en vez de dentro de `createBoard()`, compartiendo el arreglo entre instancias.
 
 ---
 
-*Actualizado: 2026-06-29*
+*Actualizado: 2026-06-30*

@@ -23,6 +23,15 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <script>
+    // Siempre abrir arriba: quita el hash de la URL ANTES de que el
+    // navegador llegue a parsear esa sección (si no, hace scroll automático
+    // hasta ahí en cuanto la encuentra) y desactiva el "scroll restoration"
+    // del navegador (recargar/volver atrás ya no deja caer a la mitad).
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    if (location.hash) history.replaceState(null, '', location.pathname + location.search);
+    window.scrollTo(0, 0);
+  </script>
 
   <a class="skip-link" href="#main">Saltar al contenido</a>
 
@@ -56,6 +65,8 @@
 
     <!-- ── HERO ─────────────────────────────────────────────────────────── -->
     <section class="hero" id="top">
+      <canvas id="particlesCanvas" class="hero-particles" aria-hidden="true"></canvas>
+
       <div class="hero-copy">
         <span class="eyebrow"><span class="dot" aria-hidden="true"></span>Tether Developers Cup 2026</span>
         <h1 class="headline">El compañero de partido que <span class="accent-green">funciona</span> aunque se caiga <span class="accent-red">el internet</span></h1>
@@ -372,6 +383,7 @@ pear run --dev .</pre>
   </footer>
 
   <script type="module" src="ball.js"></script>
+  <script src="particles.js"></script>
   <script src="main.js"></script>
 </body>
 </html>

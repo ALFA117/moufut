@@ -563,11 +563,46 @@ h2.section-title { font-size: clamp(1.7rem, 3vw, 2.4rem); margin-bottom: var(--s
 }
 
 .stack-table tr:last-child td { border-bottom: none; }
+.stack-table tbody tr { transition: background var(--dur-fast) var(--ease-out); }
+.stack-table tbody tr:hover { background: rgba(255, 255, 255, 0.03); }
 .stack-table td.layer { font-weight: 700; white-space: nowrap; }
 .stack-table td.layer.l-green { color: var(--green); }
 .stack-table td.layer.l-white { color: var(--text-1); }
 .stack-table td.layer.l-red   { color: var(--red); }
 .stack-table td.desc { color: var(--text-2); }
+
+/* En pantallas angostas, la tabla de 3 columnas queda demasiado apretada
+   (la descripción se parte en muchas líneas). Cada fila se convierte en una
+   tarjeta apilada: capa, stack y descripción a todo el ancho. */
+@media (max-width: 640px) {
+  .stack-table thead { display: none; }
+  .stack-table, .stack-table tbody, .stack-table tr, .stack-table td {
+    display: block;
+    width: 100%;
+  }
+  .stack-table tr {
+    padding: var(--sp-4);
+    border-bottom: 1px solid var(--border);
+  }
+  .stack-table tr:last-child { border-bottom: none; }
+  .stack-table td {
+    padding: 0;
+    border: none;
+  }
+  .stack-table td.layer {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 4px;
+  }
+  .stack-table td:nth-child(2) {
+    font-weight: 700;
+    color: var(--text-1);
+    font-size: 1rem;
+    margin-bottom: var(--sp-2);
+  }
+  .stack-table td.desc { font-size: 0.9rem; }
+}
 
 .rule-callout {
   margin-top: var(--sp-4);
@@ -743,6 +778,7 @@ h2.section-title { font-size: clamp(1.7rem, 3vw, 2.4rem); margin-bottom: var(--s
   flex: 1;
   display: flex;
   flex-direction: column;
+  justify-content: flex-end;
   gap: 8px;
   overflow: hidden;
 }
@@ -869,6 +905,7 @@ h2.section-title { font-size: clamp(1.7rem, 3vw, 2.4rem); margin-bottom: var(--s
   align-items: center;
   gap: 6px;
   align-self: center;
+  margin-top: auto;
   padding: 8px 16px;
   border-radius: 20px;
   background: var(--green-dim);

@@ -38,6 +38,7 @@
       </a>
       <nav class="nav-links" aria-label="Secciones de la página">
         <a href="#why">Por qué</a>
+        <a href="#demo">Demo</a>
         <a href="#stack">Stack</a>
         <a href="#run">Cómo correrlo</a>
         <a href="#faq">FAQ</a>
@@ -134,18 +135,82 @@
       </div>
     </section>
 
-    <!-- ── VISTA PREVIA ─────────────────────────────────────────────────── -->
-    <section class="preview">
-      <div class="container preview-inner">
-        <div class="section-head" data-reveal>
-          <span class="section-eyebrow">Así se ve</span>
-          <h2 class="section-title">Chat, reacciones y marcador — todo P2P</h2>
-          <p class="section-sub">Captura real de la app corriendo: sala de partido, reacciones a jugadas y chat de hinchada, todo antes de que llegue el primer peer.</p>
+    <!-- ── DEMO INTERACTIVA ─────────────────────────────────────────────── -->
+    <section class="demo" id="demo">
+      <div class="container demo-inner">
+        <div class="section-head center" data-reveal>
+          <span class="section-eyebrow">Demo</span>
+          <h2 class="section-title">Así funciona, de principio a fin</h2>
+          <p class="section-sub">Simulación de la experiencia completa — sin datos reales. Toca cada paso para verlo en el teléfono.</p>
         </div>
 
-        <div class="phone-frame" data-reveal>
-          <div class="phone-notch" aria-hidden="true"></div>
-          <img src="app-screenshot.png" alt="Captura de la pantalla de partido de MouFut: marcador México 0 - Argentina 0, botones de reacción GOL/FALTA/VAR/ROJA/FUERA, y chat P2P vacío esperando a que se una la banda." loading="lazy" width="520" height="860" />
+        <div class="demo-widget" data-reveal>
+          <div class="demo-tabs" aria-label="Pasos de la demo">
+            <button class="demo-tab active" data-demo-tab="chat" aria-pressed="true">
+              <span class="demo-tab-num">1</span>
+              <span class="demo-tab-copy">
+                <span class="demo-tab-title">Chat P2P</span>
+                <span class="demo-tab-desc">La banda reacciona en vivo, sin servidor</span>
+              </span>
+            </button>
+            <button class="demo-tab" data-demo-tab="ia" aria-pressed="false">
+              <span class="demo-tab-num">2</span>
+              <span class="demo-tab-copy">
+                <span class="demo-tab-title">MouBot IA</span>
+                <span class="demo-tab-desc">Comentario táctico, generado on-device</span>
+              </span>
+            </button>
+            <button class="demo-tab" data-demo-tab="quiniela" aria-pressed="false">
+              <span class="demo-tab-num">3</span>
+              <span class="demo-tab-copy">
+                <span class="demo-tab-title">Quiniela</span>
+                <span class="demo-tab-desc">Se liquida sola cuando hay consenso</span>
+              </span>
+            </button>
+          </div>
+
+          <div class="phone-frame demo-phone" aria-hidden="true">
+            <div class="phone-notch" aria-hidden="true"></div>
+
+            <!-- Pantalla 1: Chat P2P -->
+            <div class="demo-screen active" id="demoScreenChat" data-demo-screen="chat">
+              <div class="demo-match-card">
+                <span>MX <b>0</b> : <b>0</b> AR</span>
+                <span class="demo-match-meta">45' · Mundial 2026</span>
+              </div>
+              <div class="demo-chat" data-demo-list></div>
+              <div class="demo-input-row" aria-hidden="true">
+                <span class="demo-input">Escribe algo...</span>
+                <span class="demo-send">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/></svg>
+                </span>
+              </div>
+            </div>
+
+            <!-- Pantalla 2: MouBot IA -->
+            <div class="demo-screen" id="demoScreenIa" data-demo-screen="ia">
+              <div class="demo-ia-header">
+                <span class="demo-pulse" aria-hidden="true"></span>
+                MouBot · IA on-device
+              </div>
+              <div class="demo-chat demo-ia-feed" data-demo-list></div>
+            </div>
+
+            <!-- Pantalla 3: Quiniela -->
+            <div class="demo-screen" id="demoScreenQuiniela" data-demo-screen="quiniela">
+              <div class="demo-pool-card">
+                <div class="demo-pool-head">
+                  <span>Quiniela del grupo</span>
+                  <span class="demo-pool-pot"><span data-demo-pot>0</span> USDt</span>
+                </div>
+                <div class="demo-pool-list" data-demo-list></div>
+                <div class="demo-consensus" data-demo-consensus>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  CONSENSO 2:1
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>

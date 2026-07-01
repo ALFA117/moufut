@@ -5,84 +5,146 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MouFut — El compañero de partido que funciona aunque se caiga el internet</title>
   <meta name="description" content="MouFut conecta a la hinchada por una malla P2P sin servidor, narra el partido con IA on-device y liquida la quiniela del grupo en USDt sin intermediarios. Tether Developers Cup 2026." />
+  <meta name="color-scheme" content="dark" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@400;500;600;700&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;500&display=swap" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
-  <header class="hero">
-    <div class="hero-inner">
-      <div class="logo">
-        <svg width="40" height="40" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+  <a class="skip-link" href="#main">Saltar al contenido</a>
+
+  <header class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="#top" aria-label="MouFut, inicio">
+        <svg width="26" height="26" viewBox="0 0 28 28" fill="none" aria-hidden="true">
           <circle cx="14" cy="14" r="13" stroke="#00B368" stroke-width="2"/>
           <path d="M14 4 L17 10 L23 10 L18 14 L20 20 L14 17 L8 20 L10 14 L5 10 L11 10 Z"
-                fill="#00B368" opacity="0.15" stroke="#00B368" stroke-width="1.5"/>
+                fill="#00B368" opacity="0.18" stroke="#00B368" stroke-width="1.5"/>
         </svg>
-        <span class="logo-text">MouFut</span>
-      </div>
-      <span class="badge">Tether Developers Cup 2026</span>
-    </div>
-
-    <h1>El compañero de partido que<br/><span class="accent-green">funciona</span> aunque se caiga <span class="accent-red">el internet</span>.</h1>
-    <p class="subtitle">Chat P2P, comentarista IA on-device y quiniela en USDt — todo sin servidor, sin nube, sin internet.</p>
-
-    <div class="cta-row">
-      <a class="btn-primary" href="https://github.com/ALFA117/moufut" id="repoLink">Ver el código en GitHub</a>
-      <a class="btn-secondary" href="#stack">Cómo funciona</a>
+        <span class="brand-text">MouFut</span>
+      </a>
+      <nav class="nav-links" aria-label="Secciones de la página">
+        <a href="#why">Por qué</a>
+        <a href="#stack">Stack</a>
+        <a href="#run">Cómo correrlo</a>
+      </nav>
+      <a class="btn-nav-cta" href="https://github.com/ALFA117/moufut">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49 0-.24-.01-1.04-.01-1.88-2.78.62-3.37-1.21-3.37-1.21-.45-1.18-1.11-1.5-1.11-1.5-.91-.64.07-.63.07-.63 1 .07 1.53 1.06 1.53 1.06.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.31.1-2.73 0 0 .84-.28 2.75 1.05a9.3 9.3 0 015 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.42.2 2.47.1 2.73.64.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.8-4.57 5.06.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .27.18.6.69.49A10.03 10.03 0 0022 12.25C22 6.58 17.52 2 12 2z"/>
+        </svg>
+        GitHub
+      </a>
     </div>
   </header>
 
-  <main>
-    <section class="why">
-      <h2>Por qué MouFut</h2>
-      <p>En un estadio lleno la red celular se satura y casi todas las apps de fútbol mueren. MouFut vive justo ahí: todo lo importante sobrevive <strong>sin internet</strong>.</p>
-      <div class="why-grid">
-        <div class="why-card card-green">
-          <h3>Offline-first</h3>
-          <p>Malla P2P con Pears/Hyperswarm — resistente a censura, sin servidor central.</p>
+  <main id="main">
+
+    <!-- ── HERO ─────────────────────────────────────────────────────────── -->
+    <section class="hero" id="top">
+      <div class="hero-copy">
+        <span class="eyebrow"><span class="dot" aria-hidden="true"></span>Tether Developers Cup 2026</span>
+        <h1 class="headline">El compañero de partido que <span class="accent-green">funciona</span> aunque se caiga <span class="accent-red">el internet</span></h1>
+        <p class="lead">Chat P2P, comentarista IA on-device y quiniela en USDt — todo sin servidor, sin nube, sin internet.</p>
+        <div class="cta-row">
+          <a class="btn-primary" href="https://github.com/ALFA117/moufut">
+            Ver el código
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+          <a class="btn-secondary" href="#stack">Cómo funciona</a>
         </div>
-        <div class="why-card card-white">
-          <h3>Privado por diseño</h3>
-          <p>La IA corre en tu dispositivo con QVAC. Tus datos nunca salen.</p>
+      </div>
+
+      <div class="hero-ball" aria-hidden="true">
+        <canvas id="ballCanvas"></canvas>
+      </div>
+    </section>
+
+    <!-- ── POR QUÉ ──────────────────────────────────────────────────────── -->
+    <section class="why" id="why">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <span class="section-eyebrow">Por qué MouFut</span>
+          <h2 class="section-title">Todo lo importante sobrevive sin internet</h2>
+          <p class="section-sub">En un estadio lleno la red celular se satura y casi todas las apps de fútbol mueren. MouFut vive justo ahí.</p>
         </div>
-        <div class="why-card card-red">
-          <h3>Dinero entre amigos</h3>
-          <p>Quinielas autocustodiales en USDt liquidadas peer-to-peer con WDK.</p>
+
+        <div class="why-grid">
+          <div class="why-card card-green" data-reveal>
+            <div class="why-icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M19.1 4.9l-2.8 2.8M7.7 16.3l-2.8 2.8"/></svg>
+            </div>
+            <h3>Offline-first</h3>
+            <p>Malla P2P con Pears/Hyperswarm — resistente a censura, sin servidor central.</p>
+          </div>
+
+          <div class="why-card card-white stagger-1" data-reveal>
+            <div class="why-icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            </div>
+            <h3>Privado por diseño</h3>
+            <p>La IA corre en tu dispositivo con QVAC. Tus datos nunca salen.</p>
+          </div>
+
+          <div class="why-card card-red stagger-2" data-reveal>
+            <div class="why-icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            </div>
+            <h3>Dinero entre amigos</h3>
+            <p>Quinielas autocustodiales en USDt liquidadas peer-to-peer con WDK.</p>
+          </div>
         </div>
       </div>
     </section>
 
+    <!-- ── STACK ────────────────────────────────────────────────────────── -->
     <section class="stack" id="stack">
-      <h2>Las tres capas</h2>
-      <table>
-        <thead>
-          <tr><th>Capa</th><th>Stack de Tether</th><th>Qué hace</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td class="cell-green">P2P</td>
-            <td>Pears (Holepunch)</td>
-            <td>Descubrimiento de peers, chat de hinchada, reacciones a las jugadas, tablón de predicciones. Sin servidor.</td>
-          </tr>
-          <tr>
-            <td class="cell-white">IA</td>
-            <td>QVAC SDK</td>
-            <td>Comentarista/analista táctico y traducción de voz en vivo, todo on-device.</td>
-          </tr>
-          <tr>
-            <td class="cell-red">Dinero</td>
-            <td>WDK</td>
-            <td>Cartera autocustodial y quiniela en USDt liquidada peer-to-peer.</td>
-          </tr>
-        </tbody>
-      </table>
-      <p class="rule">Regla de la pista QVAC: toda la IA corre en el dispositivo. Cero APIs de IA en la nube.</p>
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <span class="section-eyebrow">Cómo funciona</span>
+          <h2 class="section-title">Las tres capas</h2>
+        </div>
+
+        <div data-reveal>
+          <table class="stack-table">
+            <thead>
+              <tr><th>Capa</th><th>Stack de Tether</th><th>Qué hace</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="layer l-green">P2P</td>
+                <td>Pears (Holepunch)</td>
+                <td class="desc">Descubrimiento de peers, chat de hinchada, reacciones a las jugadas, tablón de predicciones. Sin servidor.</td>
+              </tr>
+              <tr>
+                <td class="layer l-white">IA</td>
+                <td>QVAC SDK</td>
+                <td class="desc">Comentarista/analista táctico y traducción de voz en vivo, todo on-device.</td>
+              </tr>
+              <tr>
+                <td class="layer l-red">Dinero</td>
+                <td>WDK</td>
+                <td class="desc">Cartera autocustodial y quiniela en USDt liquidada peer-to-peer.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="rule-callout">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
+            <span><strong>Regla de la pista QVAC:</strong> toda la IA corre en el dispositivo. Cero APIs de IA en la nube.</span>
+          </div>
+        </div>
+      </div>
     </section>
 
+    <!-- ── ARQUITECTURA ─────────────────────────────────────────────────── -->
     <section class="arch">
-      <h2>Arquitectura</h2>
-      <pre class="arch-diagram">┌─────────────────────────────────────────────┐
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <span class="section-eyebrow">Bajo el capó</span>
+          <h2 class="section-title">Arquitectura</h2>
+        </div>
+        <pre class="arch-diagram" data-reveal>┌─────────────────────────────────────────────┐
 │                  MouFut                      │
 │      (Bare / Pears runtime, multiplataforma) │
 ├───────────────┬───────────────┬──────────────┤
@@ -92,21 +154,47 @@
 │ tablón         │ traductor     │ quiniela USDt │
 └───────────────┴───────────────┴──────────────┘
      Todo corre en el dispositivo. Sin backend propio.</pre>
+      </div>
     </section>
 
-    <section class="run">
-      <h2>Cómo correrlo</h2>
-      <pre class="code-block">git clone &lt;url-del-repo&gt;
+    <!-- ── CÓMO CORRERLO ────────────────────────────────────────────────── -->
+    <section class="run" id="run">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <span class="section-eyebrow">Empezar</span>
+          <h2 class="section-title">Cómo correrlo</h2>
+        </div>
+        <pre class="code-block" data-reveal><span class="comment"># clonar e instalar</span>
+git clone https://github.com/ALFA117/moufut.git
 cd moufut
 npm install
+
+<span class="comment"># abre la ventana desktop (Pear/Bare)</span>
 pear run --dev .</pre>
-      <p class="note">MouFut es una app de escritorio P2P (Pear/Bare runtime) — esta página es solo la presentación del proyecto, no la app en sí. Instrucciones completas en el README del repo.</p>
+        <p class="run-note" data-reveal>MouFut es una app de escritorio P2P — esta página es solo la presentación del proyecto, no la app en sí. Instrucciones completas en el README del repo.</p>
+      </div>
+    </section>
+
+    <!-- ── CTA FINAL ────────────────────────────────────────────────────── -->
+    <section class="cta-final">
+      <div class="container" data-reveal>
+        <h2 class="section-title">¿Listo para probarlo?</h2>
+        <p>El código es open source — Apache 2.0.</p>
+        <div class="cta-row">
+          <a class="btn-primary" href="https://github.com/ALFA117/moufut">
+            Ver el repo en GitHub
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+        </div>
+      </div>
     </section>
   </main>
 
   <footer>
-    <p>MouFut — Tether Developers Cup 2026. Licencia Apache 2.0.</p>
+    <p>MouFut — Tether Developers Cup 2026 · Licencia <a href="https://github.com/ALFA117/moufut/blob/master/LICENSE">Apache 2.0</a></p>
   </footer>
 
+  <script type="module" src="ball.js"></script>
+  <script src="main.js"></script>
 </body>
 </html>

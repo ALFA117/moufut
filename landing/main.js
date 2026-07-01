@@ -1,6 +1,29 @@
 // Scroll-reveal + estado activo del nav. Vainilla JS, sin dependencias.
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
+// ── Menú móvil (hamburguesa) ─────────────────────────────────────────────────
+const navToggle  = document.getElementById('navToggle')
+const mobileMenu = document.getElementById('mobileMenu')
+
+if (navToggle && mobileMenu) {
+  function closeMobileMenu() {
+    mobileMenu.classList.remove('open')
+    navToggle.classList.remove('open')
+    navToggle.setAttribute('aria-expanded', 'false')
+  }
+
+  function toggleMobileMenu() {
+    const isOpen = mobileMenu.classList.toggle('open')
+    navToggle.classList.toggle('open', isOpen)
+    navToggle.setAttribute('aria-expanded', String(isOpen))
+  }
+
+  navToggle.addEventListener('click', toggleMobileMenu)
+  mobileMenu.querySelectorAll('a').forEach((a) => a.addEventListener('click', closeMobileMenu))
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMobileMenu() })
+  window.addEventListener('resize', () => { if (window.innerWidth >= 768) closeMobileMenu() })
+}
+
 if (!reduceMotion && 'IntersectionObserver' in window) {
   const revealObserver = new IntersectionObserver(
     (entries) => {
@@ -19,7 +42,7 @@ if (!reduceMotion && 'IntersectionObserver' in window) {
 }
 
 const sections = [...document.querySelectorAll('main section[id]')]
-const navLinks = [...document.querySelectorAll('.nav-links a')]
+const navLinks = [...document.querySelectorAll('.nav-links a, .mobile-menu a')]
 
 if (sections.length && navLinks.length && 'IntersectionObserver' in window) {
   const navObserver = new IntersectionObserver(

@@ -58,7 +58,20 @@
         </svg>
         GitHub
       </a>
+
+      <button class="nav-toggle" id="navToggle" type="button" aria-expanded="false" aria-controls="mobileMenu" aria-label="Abrir menú">
+        <svg class="icon-menu" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+        <svg class="icon-close" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
     </div>
+
+    <nav class="mobile-menu" id="mobileMenu" aria-label="Secciones de la página (móvil)">
+      <a href="#why">Por qué</a>
+      <a href="#demo">Demo</a>
+      <a href="#stack">Stack</a>
+      <a href="#run">Cómo correrlo</a>
+      <a href="#faq">FAQ</a>
+    </nav>
   </header>
 
   <main id="main">
@@ -88,6 +101,7 @@
     <!-- ── ESTADÍSTICAS ─────────────────────────────────────────────────── -->
     <section class="stats" aria-label="Cifras del proyecto">
       <div class="container">
+        <span class="stats-eyebrow" data-reveal>En números</span>
         <div class="stats-grid">
           <div class="stat-card" data-reveal>
             <span class="stat-number" data-count-to="0" role="img" aria-label="0 servidores propios">0</span>

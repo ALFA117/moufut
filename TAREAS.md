@@ -89,6 +89,7 @@
 - [ ] Video final de presentación pulido (< 3 min)
 - [ ] README actualizado con instrucciones de instalación paso a paso
 - [ ] Subir release a GitHub con tag `v1.0`
+- [x] Descarga automática para instalar/tener la app — botón "Descargar ZIP" (link directo al repo en GitHub) agregado en la landing y en el README. Se investigó el link nativo `pear://` (`pear touch` + `pear stage` + `pear seed`) como alternativa y **se descartó por ahora**: (1) el stage completo falla con `ASSET_NOT_FOUND` al resolver un import interno de `@qvac/sdk` (`../../dist/server/worker.js`) incompatible con la resolución de rutas de Pear — bug del SDK de terceros, no de este proyecto; (2) aunque funcionara, el stage pesa **15.1 GB** porque bundlea los binarios nativos de IA de todas las plataformas (Android/iOS/Mac/Linux/Windows) a la vez, algo poco práctico para sincronizar vía P2P. El camino ZIP/`npm install` es además más liviano para el usuario final, ya que `npm install` en su máquina solo trae los binarios de su propia plataforma.
 
 ---
 

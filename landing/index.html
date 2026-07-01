@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MouFut — El compañero de partido que funciona aunque se caiga el internet</title>
+  <meta name="description" content="MouFut conecta a la hinchada por una malla P2P sin servidor, narra el partido con IA on-device y liquida la quiniela del grupo en USDt sin intermediarios. Tether Developers Cup 2026." />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@400;500;600;700&display=swap" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="logo">
+        <svg width="40" height="40" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <circle cx="14" cy="14" r="13" stroke="#00B368" stroke-width="2"/>
+          <path d="M14 4 L17 10 L23 10 L18 14 L20 20 L14 17 L8 20 L10 14 L5 10 L11 10 Z"
+                fill="#00B368" opacity="0.15" stroke="#00B368" stroke-width="1.5"/>
+        </svg>
+        <span class="logo-text">MouFut</span>
+      </div>
+      <span class="badge">Tether Developers Cup 2026</span>
+    </div>
+
+    <h1>El compañero de partido que<br/><span class="accent-green">funciona</span> aunque se caiga <span class="accent-red">el internet</span>.</h1>
+    <p class="subtitle">Chat P2P, comentarista IA on-device y quiniela en USDt — todo sin servidor, sin nube, sin internet.</p>
+
+    <div class="cta-row">
+      <a class="btn-primary" href="https://github.com/ALFA117/moufut" id="repoLink">Ver el código en GitHub</a>
+      <a class="btn-secondary" href="#stack">Cómo funciona</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="why">
+      <h2>Por qué MouFut</h2>
+      <p>En un estadio lleno la red celular se satura y casi todas las apps de fútbol mueren. MouFut vive justo ahí: todo lo importante sobrevive <strong>sin internet</strong>.</p>
+      <div class="why-grid">
+        <div class="why-card card-green">
+          <h3>Offline-first</h3>
+          <p>Malla P2P con Pears/Hyperswarm — resistente a censura, sin servidor central.</p>
+        </div>
+        <div class="why-card card-white">
+          <h3>Privado por diseño</h3>
+          <p>La IA corre en tu dispositivo con QVAC. Tus datos nunca salen.</p>
+        </div>
+        <div class="why-card card-red">
+          <h3>Dinero entre amigos</h3>
+          <p>Quinielas autocustodiales en USDt liquidadas peer-to-peer con WDK.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="stack" id="stack">
+      <h2>Las tres capas</h2>
+      <table>
+        <thead>
+          <tr><th>Capa</th><th>Stack de Tether</th><th>Qué hace</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="cell-green">P2P</td>
+            <td>Pears (Holepunch)</td>
+            <td>Descubrimiento de peers, chat de hinchada, reacciones a las jugadas, tablón de predicciones. Sin servidor.</td>
+          </tr>
+          <tr>
+            <td class="cell-white">IA</td>
+            <td>QVAC SDK</td>
+            <td>Comentarista/analista táctico y traducción de voz en vivo, todo on-device.</td>
+          </tr>
+          <tr>
+            <td class="cell-red">Dinero</td>
+            <td>WDK</td>
+            <td>Cartera autocustodial y quiniela en USDt liquidada peer-to-peer.</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="rule">Regla de la pista QVAC: toda la IA corre en el dispositivo. Cero APIs de IA en la nube.</p>
+    </section>
+
+    <section class="arch">
+      <h2>Arquitectura</h2>
+      <pre class="arch-diagram">┌─────────────────────────────────────────────┐
+│                  MouFut                      │
+│      (Bare / Pears runtime, multiplataforma) │
+├───────────────┬───────────────┬──────────────┤
+│   CAPA P2P     │   CAPA IA     │  CAPA DINERO  │
+│   (Pears)      │   (QVAC)      │   (WDK)       │
+│ swarm/chat/    │ comentarista/ │ cartera +     │
+│ tablón         │ traductor     │ quiniela USDt │
+└───────────────┴───────────────┴──────────────┘
+     Todo corre en el dispositivo. Sin backend propio.</pre>
+    </section>
+
+    <section class="run">
+      <h2>Cómo correrlo</h2>
+      <pre class="code-block">git clone &lt;url-del-repo&gt;
+cd moufut
+npm install
+pear run --dev .</pre>
+      <p class="note">MouFut es una app de escritorio P2P (Pear/Bare runtime) — esta página es solo la presentación del proyecto, no la app en sí. Instrucciones completas en el README del repo.</p>
+    </section>
+  </main>
+
+  <footer>
+    <p>MouFut — Tether Developers Cup 2026. Licencia Apache 2.0.</p>
+  </footer>
+
+</body>
+</html>

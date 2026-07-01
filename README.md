@@ -12,6 +12,8 @@ llenos y bares a reventar durante el Mundial, donde no hay senal.
 Proyecto para la **Tether Developers Cup**.
 Pista: **QVAC (IA local)**, apoyada en **Pears (P2P)** y **WDK (carteras)**.
 
+🔗 **Página de presentación:** https://moufut.vercel.app *(landing estática — MouFut en sí es una app de escritorio P2P, no un sitio web; ver "Instalación y ejecución" abajo)*
+
 ---
 
 ## Por que MouFut
@@ -77,7 +79,7 @@ moufut/
 
 ```bash
 # 1. Clonar
-git clone https://github.com/<tu-usuario>/moufut.git
+git clone https://github.com/ALFA117/moufut.git
 cd moufut
 
 # 2. Instalar dependencias

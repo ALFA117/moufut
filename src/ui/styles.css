@@ -523,6 +523,26 @@ input {
   letter-spacing: 0.04em;
 }
 
+/* Dónde corrió la última respuesta: local en este dispositivo, o delegada a un peer worker */
+.ia-runtime-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  width: fit-content;
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: var(--text-2);
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+}
+.ia-runtime-badge.delegated {
+  color: var(--green);
+  background: var(--green-dim);
+  border-color: var(--border-green);
+}
+
 .ia-status-indicator {
   display: flex;
   align-items: center;
@@ -1328,6 +1348,82 @@ input {
   font-size: 0.72rem;
   color: var(--text-3);
   line-height: 1.5;
+}
+
+/* ====== WORKER TOGGLE (delegación P2P) ====== */
+.worker-toggle-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.worker-toggle-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.worker-toggle-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-1);
+}
+
+.worker-toggle-sub {
+  font-size: 0.72rem;
+  color: var(--text-3);
+  line-height: 1.4;
+}
+
+.switch {
+  flex-shrink: 0;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.switch input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+.switch-track {
+  display: block;
+  width: 44px;
+  height: 26px;
+  border-radius: 999px;
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+  position: relative;
+  transition: background 180ms var(--ease-out), border-color 180ms var(--ease-out);
+}
+
+.switch-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--text-2);
+  transition: transform 180ms var(--ease-out), background 180ms var(--ease-out);
+}
+
+.switch input:checked + .switch-track {
+  background: var(--green-dim);
+  border-color: var(--border-green);
+}
+.switch input:checked + .switch-track .switch-thumb {
+  transform: translateX(18px);
+  background: var(--green);
+}
+.switch input:focus-visible + .switch-track {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
 }
 
 /* ====== TACTICAL BUTTON ====== */

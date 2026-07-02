@@ -4,19 +4,21 @@
  */
 
 export const MSG = Object.freeze({
-  CHAT:        'chat',
-  REACTION:    'reaction',
-  PREDICTION:  'prediction',
-  MATCH_EVENT: 'match_event',
-  FINAL_SCORE: 'final_score',
-  SETTLEMENT:  'settlement',
-  STATE_SYNC:  'state_sync',
+  CHAT:            'chat',
+  REACTION:        'reaction',
+  PREDICTION:      'prediction',
+  MATCH_EVENT:     'match_event',
+  FINAL_SCORE:     'final_score',
+  SETTLEMENT:      'settlement',
+  STATE_SYNC:      'state_sync',
+  QVAC_CAPABILITY: 'qvac_capability',
 })
 
 const isInt    = (v) => Number.isInteger(Number(v)) && Number(v) >= 0
 const isAmount = (v) => typeof v === 'number' && isFinite(v) && v > 0
 const isHex    = (v) => typeof v === 'string' && /^[0-9a-f]+$/.test(v)
 const isStr    = (v) => typeof v === 'string' && v.length > 0
+const isBool   = (v) => typeof v === 'boolean'
 
 const VALIDATORS = {
   [MSG.CHAT]: (m) =>
@@ -46,6 +48,12 @@ const VALIDATORS = {
 
   [MSG.STATE_SYNC]: (m) =>
     Array.isArray(m.bets) && Array.isArray(m.reports),
+
+  // `available:false` anuncia que un peer deja de ofrecerse como worker
+  // (deja de correr startQVACProvider) — ahí `publicKey`/`tier` no aplican.
+  [MSG.QVAC_CAPABILITY]: (m) =>
+    isBool(m.available) &&
+    (m.available === false || (isHex(m.publicKey) && isStr(m.tier))),
 }
 
 /**

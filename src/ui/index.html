@@ -145,6 +145,7 @@
         <div class="ia-info">
           <h2 class="ia-name">MouBot</h2>
           <span class="ia-badge">IA on-device · QVAC</span>
+          <span class="ia-runtime-badge" id="iaRuntimeBadge" hidden></span>
         </div>
         <div class="ia-status-indicator" aria-live="polite" aria-label="Estado del modelo IA">
           <span class="pulse-dot" aria-hidden="true"></span>
@@ -162,6 +163,18 @@
           <div class="progress-fill" id="modelProgressFill"></div>
         </div>
         <p class="progress-hint">Solo la primera vez — el modelo se guarda en el dispositivo.</p>
+      </div>
+
+      <!-- Delegación P2P: ofrecer este dispositivo como worker QVAC para la sala -->
+      <div class="worker-toggle-card glass-card">
+        <div class="worker-toggle-info">
+          <span class="worker-toggle-title">Ser worker de IA para la sala</span>
+          <span class="worker-toggle-sub" id="workerToggleSub">Presta este dispositivo para correr el modelo grande de otros peers de la sala</span>
+        </div>
+        <label class="switch" for="workerToggleInput">
+          <input type="checkbox" id="workerToggleInput" aria-label="Activar modo worker QVAC para esta sala">
+          <span class="switch-track" aria-hidden="true"><span class="switch-thumb" aria-hidden="true"></span></span>
+        </label>
       </div>
 
       <div class="commentary-feed" id="commentaryFeed" aria-live="polite" aria-label="Comentarios de MouBot">

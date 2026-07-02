@@ -1,10 +1,12 @@
-import { createSwarm }       from '../p2p/swarm.js'
-import { createChat }        from '../p2p/chat.js'
-import { createCommentator } from '../ai/commentator.js'
-import { createWallet }      from '../wallet/wallet.js'
-import { createPool }        from '../wallet/pool.js'
-import { createIdentity }    from '../p2p/identity.js'
-import { REACTION_LABEL }    from '../p2p/schema.js'
+import { createSwarm }        from '../p2p/swarm.js'
+import { createChat }         from '../p2p/chat.js'
+import { createCapabilities } from '../p2p/capabilities.js'
+import { createCommentator }  from '../ai/commentator.js'
+import { becomeWorker, stopBeingWorker, WORKER_TIER } from '../ai/delegation.js'
+import { createWallet }       from '../wallet/wallet.js'
+import { createPool }         from '../wallet/pool.js'
+import { createIdentity }     from '../p2p/identity.js'
+import { REACTION_LABEL }     from '../p2p/schema.js'
 
 // ── Room ID ──────────────────────────────────────────────────────────────────
 const roomId = location.hash.replace('#', '').trim() || 'moufut-default'
@@ -371,9 +373,10 @@ async function init() {
   updateConnectionStatus({ connected: false, peers: 0 })
 
   // ── P2P ──────────────────────────────────────────────────────────────────
-  const swarm    = await createSwarm(roomId)
-  const identity = createIdentity(swarm.keypair)
-  const chat     = createChat(swarm)
+  const swarm        = await createSwarm(roomId)
+  const identity      = createIdentity(swarm.keypair)
+  const chat          = createChat(swarm)
+  const capabilities  = createCapabilities({ swarm })
 
   console.log('[MouFut] Mi identidad P2P:', identity.shortId, '| sala:', roomId)
 
@@ -381,14 +384,61 @@ async function init() {
   setIAStatus('Cargando modelo...')
   showModelProgress(0)
   const ai = await createCommentator({
+    capabilities,
     onProgress: (pct) => {
       if (pct === null) {
         showModelProgress(null)
-        setIAStatus('Listo')
+        markIAReady()
       } else {
         showModelProgress(pct)
         setIAStatus(`Descargando ${Math.round(pct)}%`)
       }
+    }
+  })
+
+  function markIAReady() {
+    setIAStatus('Listo')
+    updateAIRuntimeBadge()
+  }
+
+  function updateAIRuntimeBadge() {
+    const badge = document.getElementById('iaRuntimeBadge')
+    if (!badge) return
+    const { mode, workerId } = ai.getRuntimeInfo()
+    badge.hidden = false
+    badge.classList.toggle('delegated', mode === 'delegated')
+    badge.textContent = mode === 'delegated'
+      ? `Delegada · peer ${workerId?.slice(0, 8)}`
+      : 'Local en este dispositivo'
+  }
+  updateAIRuntimeBadge()
+  // La delegación puede cambiar en caliente (un worker aparece o se va de la
+  // sala) — commentator.js se reacomoda solo, acá solo refrescamos el badge.
+  capabilities.onChange(() => updateAIRuntimeBadge())
+
+  // ── Worker QVAC (delegación P2P) ────────────────────────────────────────
+  const workerToggle = document.getElementById('workerToggleInput')
+  const workerSub     = document.getElementById('workerToggleSub')
+
+  workerToggle?.addEventListener('change', async () => {
+    workerToggle.disabled = true
+    try {
+      if (workerToggle.checked) {
+        const publicKey = await becomeWorker()
+        capabilities.announce({ publicKey, tier: WORKER_TIER })
+        if (workerSub) workerSub.textContent = 'Activo — otros peers de la sala pueden delegarte inferencia pesada'
+        showToast('Ahora eres worker de IA para esta sala')
+      } else {
+        await stopBeingWorker()
+        capabilities.announce(null)
+        if (workerSub) workerSub.textContent = 'Presta este dispositivo para correr el modelo grande de otros peers de la sala'
+        showToast('Dejaste de ser worker de IA')
+      }
+    } catch (err) {
+      workerToggle.checked = !workerToggle.checked
+      showToast(`Error: ${err.message}`)
+    } finally {
+      workerToggle.disabled = false
     }
   })
 
@@ -624,7 +674,7 @@ async function init() {
     } catch {
       addCommentary({ time, tag: 'MouBot', text: `Sin respuesta para: "${question}"` })
     } finally {
-      setIAStatus('Listo')
+      markIAReady()
     }
   }
 
@@ -660,7 +710,7 @@ async function init() {
         </svg>
         Análisis táctico completo
       `
-      setIAStatus('Listo')
+      markIAReady()
     }
   })
 
@@ -672,7 +722,7 @@ async function init() {
       const comment = await ai.analyze(msg.event)
       addCommentary({ time: getCurrentMatchTime(), tag: msg.event.type ?? 'Evento', text: comment })
     } finally {
-      setIAStatus('Listo')
+      markIAReady()
     }
   })
 

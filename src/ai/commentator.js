@@ -1,7 +1,17 @@
-import { loadModel, completion } from '@qvac/sdk'
-import { SMOLLM2_360M_INST_Q8 } from '@qvac/sdk/models'
+import { completion, unloadModel } from '@qvac/sdk'
+import { SMOLLM2_360M_INST_Q8, QWEN3_1_7B_INST_Q4 } from '@qvac/sdk/models'
+import { loadWithDelegateFallback } from './delegation.js'
 
-let commentModelId = null
+// Modelo local (chico, hardware débil) vs. el que se le pide a un peer worker
+// (más grande/capaz) cuando hay uno anunciado en la sala — ver delegation.js.
+const LOCAL_MODEL  = SMOLLM2_360M_INST_Q8
+const REMOTE_MODEL = QWEN3_1_7B_INST_Q4
+
+let commentModelId  = null
+let runtimeMode      = 'local'  // 'local' | 'delegated' — dónde corrió la última carga de modelo
+let runtimeWorkerId  = null     // peerId del worker si runtimeMode === 'delegated'
+let reloading         = false
+
 const eventHistory = []
 const MAX_HISTORY  = 8
 
@@ -26,10 +36,18 @@ function describeEvent(event) {
   return fn ? fn(event) : `Evento "${event.type}" en el partido.`
 }
 
-async function loadCommentModel(onProgress) {
+/**
+ * Carga el modelo del comentarista, delegando a un peer worker de la sala si
+ * `capabilities` conoce uno (ver `p2p/capabilities.js` + `ai/delegation.js`),
+ * o corriendo local si no hay ninguno o la delegación falla.
+ */
+async function loadCommentModel({ onProgress, capabilities } = {}) {
+  const worker = capabilities?.bestWorker() ?? null
   try {
-    commentModelId = await loadModel({
-      modelSrc: SMOLLM2_360M_INST_Q8,
+    const result = await loadWithDelegateFallback({
+      worker,
+      remoteModel: REMOTE_MODEL,
+      localModel: LOCAL_MODEL,
       onProgress: (p) => {
         if (p.percentage != null) {
           console.log(`[IA] Descargando modelo... ${p.percentage.toFixed(0)}%`)
@@ -37,13 +55,43 @@ async function loadCommentModel(onProgress) {
         }
       }
     })
+    commentModelId = result.modelId
+    runtimeMode    = result.mode
+    runtimeWorkerId = result.peerId ?? null
     onProgress?.(null)
-    console.log('[IA] Modelo on-device listo:', commentModelId)
+    console.log(`[IA] Modelo listo (${runtimeMode}${runtimeWorkerId ? ' · peer ' + runtimeWorkerId : ''}):`, commentModelId)
   } catch (err) {
     console.warn('[IA] No se pudo cargar QVAC:', err.message)
-    commentModelId = null
+    commentModelId  = null
+    runtimeMode      = 'local'
+    runtimeWorkerId  = null
     onProgress?.(null)
   }
+}
+
+/**
+ * Reevalúa si conviene cambiar de worker: si el worker delegado actual se
+ * fue de la sala (hay que caer a local), o si estábamos en local y acaba de
+ * aparecer un worker (conviene subir de modelo). Se llama cuando cambia el
+ * registro de capacidades P2P — nunca en medio de una respuesta en curso.
+ */
+async function maybeSwitchWorker({ capabilities, onProgress } = {}) {
+  if (reloading || !capabilities) return
+
+  const worker = capabilities.bestWorker()
+  const stillDelegatedToKnownWorker = runtimeMode === 'delegated' && worker?.peerId === runtimeWorkerId
+  const lostOurWorker  = runtimeMode === 'delegated' && !stillDelegatedToKnownWorker
+  const gainedAWorker  = runtimeMode === 'local' && worker != null
+
+  if (!lostOurWorker && !gainedAWorker) return
+
+  reloading = true
+  const previousModelId = commentModelId
+  await loadCommentModel({ onProgress, capabilities })
+  if (previousModelId && previousModelId !== commentModelId) {
+    try { await unloadModel({ modelId: previousModelId }) } catch {}
+  }
+  reloading = false
 }
 
 // `predict` acota el número de tokens de salida — con SMOLLM2 360M (el modelo
@@ -65,23 +113,30 @@ async function runCompletion(userText, systemPrompt = SYSTEM_PROMPT, maxTokens =
 }
 
 /**
- * Comentarista/analista táctico on-device (QVAC, SMOLLM2 360M). Si el modelo
- * no cargó (sin internet la primera vez, o corriendo fuera del runtime
+ * Comentarista/analista táctico on-device (QVAC). Si hay un peer worker
+ * anunciado en la sala, la inferencia se DELEGA ahí (modelo más grande,
+ * `QWEN3_1_7B_INST_Q4`) vía el mecanismo nativo de QVAC; si no hay worker o
+ * la delegación falla, corre local con un modelo chico (SMOLLM2 360M). Si ni
+ * eso carga (sin internet la primera vez, o corriendo fuera del runtime
  * Bare/Pear — ver README), cada método cae a un stub de texto plano en vez
  * de fallar, para que la UI nunca se quede sin respuesta.
  *
  * @param {object} [opts]
  * @param {(pct: number|null) => void} [opts.onProgress] - progreso de descarga del modelo (0-100, `null` al terminar)
+ * @param {ReturnType<import('../p2p/capabilities.js').createCapabilities>} [opts.capabilities] - registro de workers P2P conocidos
  * @returns {Promise<{
  *   analyze: (event: {type:string, [k:string]:any}) => Promise<string>,
  *   analyzeTactical: () => Promise<string>,
  *   translate: (text: string, targetLang?: string) => Promise<string>,
  *   getHistory: () => object[],
+ *   getRuntimeInfo: () => {mode:'local'|'delegated', workerId: string|null},
  *   destroy: () => void,
  * }>}
  */
-export async function createCommentator({ onProgress } = {}) {
-  await loadCommentModel(onProgress)
+export async function createCommentator({ onProgress, capabilities } = {}) {
+  await loadCommentModel({ onProgress, capabilities })
+
+  capabilities?.onChange(() => { void maybeSwitchWorker({ capabilities, onProgress }) })
 
   return {
     /**
@@ -150,6 +205,9 @@ export async function createCommentator({ onProgress } = {}) {
     },
 
     getHistory() { return [...eventHistory] },
+
+    /** Dónde corrió (o correría) la última respuesta: local en este dispositivo, o delegada a un peer. */
+    getRuntimeInfo() { return { mode: runtimeMode, workerId: runtimeWorkerId } },
 
     destroy() { eventHistory.length = 0 }
   }

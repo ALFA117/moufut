@@ -22,10 +22,12 @@ En un estadio lleno la red celular se satura y casi todas las apps de fútbol mu
 porque dependen de un backend inalcanzable. MouFut vive justo ahí: no depende de un
 servidor propio que se pueda caer, saturar o censurar.
 
-- **Sin servidor central, resistente a censura** gracias a la malla P2P de Pears — el
-  descubrimiento inicial de peers usa la DHT pública de Hyperswarm, que sí necesita
-  algo de conexión (no hay forma de descubrirse 100% sin internet con el stack
-  actual; ver la nota en "Paso 6" más abajo).
+- **Sin servidor central, resistente a censura** gracias a la malla P2P de Pears — por
+  defecto el descubrimiento de peers usa la DHT pública de Hyperswarm, que sí
+  necesita algo de conexión. Para el caso de uso real de un estadio o bar sin señal,
+  MouFut también soporta un **modo LAN 100% sin internet**: un dispositivo levanta su
+  propio nodo bootstrap de HyperDHT en la red local y los demás se conectan ahí en vez
+  de a internet (ver "Paso 6b" más abajo).
 - **Privado por diseño**: la IA corre en el dispositivo (QVAC). Tus datos nunca salen.
 - **Dinero entre amigos sin intermediarios**: quinielas autocustodiales en USDt (WDK).
 
@@ -178,7 +180,41 @@ pear run --dev . #mundial-mx-2026
 Dentro de la app, el botón **"Copiar código de sala"** copia ese identificador
 para que lo compartas. Cualquiera que arranque MouFut con el mismo código de
 sala (mismo hash) entra a la misma malla P2P — no hace falta estar en la
-misma red local, Hyperswarm los encuentra vía DHT.
+misma red local, Hyperswarm los encuentra vía DHT (necesita internet).
+
+### Paso 6b — Modo LAN sin internet (opcional)
+
+Para operar 100% sin internet (modo avión real, útil en un estadio sin señal),
+un dispositivo de la sala levanta su propio nodo bootstrap de HyperDHT en la
+red local — el mecanismo `DHT.bootstrapper()` documentado en
+[docs.pears.com](https://docs.pears.com/reference/building-blocks/hyperdht)
+para "redes aisladas o auto-alojadas" — y los demás peers apuntan ahí en vez
+de a los nodos públicos de internet.
+
+1. En **un** dispositivo (el "anfitrión" de la sala), con internet apagado o no:
+
+   ```bash
+   npm run lan-bootstrap
+   ```
+
+   Esto imprime la IP:puerto local, por ejemplo `192.168.1.75:49737`, y la URL
+   lista para copiar: `?bootstrap=192.168.1.75:49737#mundial-mx-2026`.
+
+2. En los **demás** dispositivos (misma red Wi-Fi/hotspot, internet apagado),
+   arrancá la app agregando ese parámetro a la URL/hash:
+
+   ```bash
+   pear run --dev . ?bootstrap=192.168.1.75:49737#mundial-mx-2026
+   ```
+
+3. El indicador de conexión muestra **"P2P · LAN sin internet"** en vez de
+   "P2P" cuando la sala está usando el bootstrap propio.
+
+Reproducido y verificado con `scripts/test-lan-offline.js` (dos peers se
+descubren y mandan un mensaje usando solo un bootstrap aislado en loopback,
+sin tocar la DHT pública). Pendiente repetir en dos dispositivos físicos
+reales con el internet apagado de verdad (dato del móvil apagado, sin Wi-Fi
+con salida a internet) — ver checklist en `TAREAS.md`.
 
 ### Paso 7 — Probar con un segundo peer
 

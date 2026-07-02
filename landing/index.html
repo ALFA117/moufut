@@ -389,7 +389,7 @@ pear run --dev .</pre>
         <div class="faq-list" data-reveal>
           <details class="faq-item">
             <summary>¿Necesito internet para usarlo?</summary>
-            <p>Sí, al menos un poco: para descubrirse entre sí, los peers usan la DHT pública de Hyperswarm, así que hace falta algo de conexión en el momento de conectar (además de la primera descarga del modelo de IA y las dependencias). Lo que MouFut no tiene es un servidor propio — no hay backend que se pueda caer, saturar o censurar; los mensajes viajan directo entre los dispositivos ya conectados.</p>
+            <p>Por defecto sí, al menos un poco: los peers se descubren vía la DHT pública de Hyperswarm, así que hace falta algo de conexión en el momento de conectar (además de la primera descarga del modelo de IA y las dependencias). Para el caso real de un estadio o bar sin señal, MouFut tiene un <strong>modo LAN 100% sin internet</strong>: un dispositivo levanta su propio nodo bootstrap en la red local y los demás se conectan ahí en vez de a internet (ver instrucciones en el README). Lo que MouFut nunca tiene, con o sin ese modo, es un servidor propio — no hay backend que se pueda caer, saturar o censurar; los mensajes viajan directo entre los dispositivos ya conectados.</p>
           </details>
           <details class="faq-item">
             <summary>¿Es seguro poner dinero en la quiniela?</summary>

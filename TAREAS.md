@@ -113,16 +113,55 @@
 - [x] RAG de fútbol conectado al comentarista (`src/ai/rag.js` + `src/ai/knowledge/futbol-kb.js`) — toda pregunta libre (`analyze({type:'question'})`) busca contexto en la base on-device (HyperDB/QVAC, embeddings `EMBEDDINGGEMMA_300M_Q8_0`) antes de responder, tanto si pasa por el orquestador con tools como por el camino simple. Probado con `scripts/test-rag.js` (búsqueda aislada, recupera el documento correcto sobre offside) y con una pregunta end-to-end contra `createCommentator()`: el modelo local cargó, el contexto se inyectó en el prompt y generó una respuesta usando la base de conocimiento — confirma la integración, aunque SMOLLM2 360M da respuestas de calidad limitada (esperado del modelo más chico del registro, ver nota de latencia arriba).
 - [x] Pulido visual de la landing: balón del hero recortado por radio de esfera mayor al frustum de la cámara (corregido), fondo plano fuera del hero reemplazado por gradientes a la deriva + grilla de puntos, sección "Arquitectura" rediseñada como tarjetas en vez de ASCII art, terminal animada de instalación en "Cómo correrlo".
 
-## v2 — Descubrimiento LAN real sin internet (no implementado)
-Para que MouFut funcione de verdad con el internet apagado (no solo "sin servidor
-propio") hace falta construir descubrimiento local, no activar un flag que ya
-exista: agregar `multicast-dns` como dependencia nueva para que los peers se
-anuncien por la LAN, conectarlos vía `swarm.joinPeer(publicKey)`, y evaluar si
-hace falta levantar un nodo DHT "bootstrap" propio alcanzable en la LAN (hyperdht
-permite apuntar a bootstrap nodes custom) para que el hole-punching tampoco
-dependa de internet. Es una pieza de infraestructura real, no trivial — se dejó
-fuera de esta ronda por el riesgo de tocar la capa de red más frágil del proyecto
-días antes de la entrega.
+## v2 — Descubrimiento LAN real sin internet ✅ (Checkpoint A)
+
+- [x] **Investigación contra la fuente real, no memoria ni blogs**: se verificó
+  `docs.pears.com/reference/building-blocks/hyperswarm` y `hyperdht`, el README
+  crudo de `holepunchto/hyperswarm`, y se hizo `grep -r "mdns\|multicast"` sobre
+  el código de `node_modules/hyperswarm` y `node_modules/hyperdht` realmente
+  instalados (v4.17.0 / v6.32.0): **cero** referencias. Hyperswarm/HyperDHT
+  actual **no** trae mDNS ni descubrimiento LAN automático — solo DHT pública.
+  (Resultados de búsqueda web que mencionan mDNS en Hyperswarm hablan de
+  `hyperswarm/discovery`, un paquete distinto y antiguo de ~2018, no el que usa
+  este proyecto — confirmado como falso positivo.)
+- [x] **Camino real encontrado y confirmado funcional**: `HyperDHT.bootstrapper(port, host)`
+  (documentado en `docs.pears.com/reference/building-blocks/hyperdht` y
+  verificado en runtime — existe heredado del prototipo, no en `index.js`
+  directamente) crea un nodo DHT propio para "redes aisladas o auto-alojadas".
+  Pasando ese nodo como `bootstrap` a `new Hyperswarm({bootstrap})` (opción que
+  ya existía, pasa derecho a `hyperdht`), los peers se descubren y conectan sin
+  tocar ningún nodo público de internet.
+- [x] `src/p2p/swarm.js` — `createSwarm(roomId, {bootstrap})` acepta un
+  bootstrap propio opcional; sin él, comportamiento 100% idéntico a antes (DHT
+  pública). No rompe ningún caller existente.
+- [x] `scripts/lan-bootstrap.js` (nuevo, `npm run lan-bootstrap`) — levanta el
+  nodo bootstrap en la IP LAN real de la máquina (autodetectada, evitando
+  interfaces Tailscale/VPN) y muestra la URL lista para copiar a los demás
+  peers.
+- [x] `src/ui/app.js` — lee `?bootstrap=host:port` de la URL; si está presente
+  usa esa red aislada en vez de la pública. El badge de conexión muestra
+  "P2P · LAN sin internet" cuando está activo.
+- [x] `scripts/test-lan-offline.js` — prueba que dos peers se descubren y
+  mandan un mensaje usando **solo** un bootstrap propio en loopback, sin la
+  DHT pública. 3/3 corridas pasaron en <10s cada una. (Nota real de depuración:
+  la primera versión del test unía los dos peers con `Promise.all` y fallaba
+  por una condición de carrera del announce/lookup contra una red de un solo
+  nodo recién creada — no representa el uso real, donde dos dispositivos nunca
+  arrancan en el mismo tick de JS; se corrigió a unión secuencial y quedó
+  estable.)
+- [x] README: nuevo "Paso 6b — Modo LAN sin internet" con instrucciones
+  exactas de reproducción en 2+ dispositivos reales. Landing (FAQ "¿Necesito
+  internet para usarlo?") actualizada para mencionar el modo LAN en vez de
+  solo advertir que hace falta conexión.
+- [ ] **Pendiente real**: repetir el Paso 6b en dos dispositivos físicos con
+  el internet apagado de verdad (datos móviles apagados, Wi-Fi/hotspot sin
+  salida a internet) — el test automatizado prueba el mecanismo en loopback,
+  no reemplaza la prueba en campo. Hacerlo antes de grabar el video final.
+- [ ] El join por código de sala sigue siendo por IP:puerto manual del
+  bootstrap, no autodiscovery — aceptable para la demo (equipo controla ambos
+  dispositivos), pero es una limitación real a mencionar si un juez pregunta
+  "¿y si no sé la IP del otro?". Backlog v3: `multicast-dns` para
+  autodescubrir el bootstrap en la LAN sin escribir la IP a mano.
 
 ---
 

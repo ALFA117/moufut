@@ -13,6 +13,19 @@ import { REACTION_LABEL }     from '../p2p/schema.js'
 // ── Room ID ──────────────────────────────────────────────────────────────────
 const roomId = location.hash.replace('#', '').trim() || 'moufut-default'
 
+// ── Modo LAN sin internet ────────────────────────────────────────────────────
+// `?bootstrap=host:port` apunta a un nodo propio levantado con
+// `scripts/lan-bootstrap.js` en la misma red local, en vez de la DHT pública
+// (que necesita internet). Sin este parámetro, comportamiento normal.
+const lanBootstrap = (() => {
+  const raw = new URLSearchParams(location.search).get('bootstrap')
+  if (!raw) return null
+  const [host, portStr] = raw.split(':')
+  const port = Number(portStr)
+  if (!host || !port) return null
+  return [{ host, port }]
+})()
+
 // ── Prefer reduced motion ────────────────────────────────────────────────────
 const REDUCE_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
@@ -145,7 +158,7 @@ function updateConnectionStatus({ connected, peers = 0 }) {
   const count = document.getElementById('peersCount')
   dot?.classList.toggle('connected', connected)
   dot?.classList.toggle('searching', !connected)
-  if (label) label.textContent = connected ? 'P2P' : 'Buscando...'
+  if (label) label.textContent = connected ? (lanBootstrap ? 'P2P · LAN sin internet' : 'P2P') : 'Buscando...'
   if (count) count.textContent = `${peers} peer${peers !== 1 ? 's' : ''}`
 }
 
@@ -375,7 +388,7 @@ async function init() {
   updateConnectionStatus({ connected: false, peers: 0 })
 
   // ── P2P ──────────────────────────────────────────────────────────────────
-  const swarm        = await createSwarm(roomId)
+  const swarm        = await createSwarm(roomId, { bootstrap: lanBootstrap })
   const identity      = createIdentity(swarm.keypair)
   const chat          = createChat(swarm)
   const capabilities  = createCapabilities({ swarm })

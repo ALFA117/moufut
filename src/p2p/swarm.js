@@ -7,7 +7,15 @@ import crypto from 'crypto'
  * topic es sha256("moufut:" + roomId), así que cualquier peer con el mismo
  * código de sala se descubre vía la DHT pública, sin servidor propio).
  *
+ * Modo LAN sin internet: si se pasa `bootstrap` (un `{host, port}` apuntando
+ * a un nodo levantado con `scripts/lan-bootstrap.js` en la misma red local),
+ * Hyperswarm usa ESA dht aislada en vez de los nodos públicos de HyperDHT —
+ * el mismo mecanismo que documenta `DHT.bootstrapper()` en docs.pears.com
+ * para "redes aisladas o auto-alojadas". Sin `bootstrap`, el comportamiento
+ * es idéntico al de siempre (DHT pública, necesita internet).
+ *
  * @param {string} roomId - código de sala compartido entre peers
+ * @param {{bootstrap?: Array<{host:string, port:number}>}} [opts] - nodo(s) bootstrap propios para modo LAN sin internet
  * @returns {Promise<{
  *   roomId: string,
  *   keypair: {publicKey: Uint8Array, secretKey: Uint8Array},
@@ -19,8 +27,8 @@ import crypto from 'crypto'
  *   destroy: () => Promise<void>,
  * }>}
  */
-export async function createSwarm(roomId) {
-  const swarm = new Hyperswarm()
+export async function createSwarm(roomId, { bootstrap } = {}) {
+  const swarm = new Hyperswarm(bootstrap ? { bootstrap } : {})
   const topic = crypto.createHash('sha256').update('moufut:' + roomId).digest()
 
   const peers = new Map()
@@ -51,7 +59,7 @@ export async function createSwarm(roomId) {
   const discovery = swarm.join(topic, { client: true, server: true })
   await discovery.flushed()
 
-  console.log(`[P2P] Sala "${roomId}" activa | peers: ${swarm.connections.size}`)
+  console.log(`[P2P] Sala "${roomId}" activa${bootstrap ? ' | modo LAN (bootstrap propio, sin internet)' : ''} | peers: ${swarm.connections.size}`)
 
   return {
     roomId,

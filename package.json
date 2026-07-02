@@ -27,7 +27,8 @@
     "hypercore": "^10.28.0",
     "hypercore-protocol": "^8.0.7",
     "hyperswarm": "^4.7.15",
-    "sodium-universal": "^4.0.0"
+    "sodium-universal": "^4.0.0",
+    "zod": "^4.4.3"
   },
   "license": "Apache-2.0"
 }

@@ -1,7 +1,9 @@
 import { createSwarm }        from '../p2p/swarm.js'
 import { createChat }         from '../p2p/chat.js'
 import { createCapabilities } from '../p2p/capabilities.js'
+import { createBoard }        from '../p2p/board.js'
 import { createCommentator }  from '../ai/commentator.js'
+import { createTools }        from '../ai/tools.js'
 import { becomeWorker, stopBeingWorker, WORKER_TIER } from '../ai/delegation.js'
 import { createWallet }       from '../wallet/wallet.js'
 import { createPool }         from '../wallet/pool.js'
@@ -377,70 +379,9 @@ async function init() {
   const identity      = createIdentity(swarm.keypair)
   const chat          = createChat(swarm)
   const capabilities  = createCapabilities({ swarm })
+  const board         = createBoard({ swarm, myId: identity.shortId })
 
   console.log('[MouFut] Mi identidad P2P:', identity.shortId, '| sala:', roomId)
-
-  // ── IA ───────────────────────────────────────────────────────────────────
-  setIAStatus('Cargando modelo...')
-  showModelProgress(0)
-  const ai = await createCommentator({
-    capabilities,
-    onProgress: (pct) => {
-      if (pct === null) {
-        showModelProgress(null)
-        markIAReady()
-      } else {
-        showModelProgress(pct)
-        setIAStatus(`Descargando ${Math.round(pct)}%`)
-      }
-    }
-  })
-
-  function markIAReady() {
-    setIAStatus('Listo')
-    updateAIRuntimeBadge()
-  }
-
-  function updateAIRuntimeBadge() {
-    const badge = document.getElementById('iaRuntimeBadge')
-    if (!badge) return
-    const { mode, workerId } = ai.getRuntimeInfo()
-    badge.hidden = false
-    badge.classList.toggle('delegated', mode === 'delegated')
-    badge.textContent = mode === 'delegated'
-      ? `Delegada · peer ${workerId?.slice(0, 8)}`
-      : 'Local en este dispositivo'
-  }
-  updateAIRuntimeBadge()
-  // La delegación puede cambiar en caliente (un worker aparece o se va de la
-  // sala) — commentator.js se reacomoda solo, acá solo refrescamos el badge.
-  capabilities.onChange(() => updateAIRuntimeBadge())
-
-  // ── Worker QVAC (delegación P2P) ────────────────────────────────────────
-  const workerToggle = document.getElementById('workerToggleInput')
-  const workerSub     = document.getElementById('workerToggleSub')
-
-  workerToggle?.addEventListener('change', async () => {
-    workerToggle.disabled = true
-    try {
-      if (workerToggle.checked) {
-        const publicKey = await becomeWorker()
-        capabilities.announce({ publicKey, tier: WORKER_TIER })
-        if (workerSub) workerSub.textContent = 'Activo — otros peers de la sala pueden delegarte inferencia pesada'
-        showToast('Ahora eres worker de IA para esta sala')
-      } else {
-        await stopBeingWorker()
-        capabilities.announce(null)
-        if (workerSub) workerSub.textContent = 'Presta este dispositivo para correr el modelo grande de otros peers de la sala'
-        showToast('Dejaste de ser worker de IA')
-      }
-    } catch (err) {
-      workerToggle.checked = !workerToggle.checked
-      showToast(`Error: ${err.message}`)
-    } finally {
-      workerToggle.disabled = false
-    }
-  })
 
   // ── Wallet ────────────────────────────────────────────────────────────────
   const wallet = await createWallet()
@@ -495,6 +436,103 @@ async function init() {
 
     if (event.type === 'no_winners') {
       showSettlement({ score: event.score, winners: [], share: 0, iAmWinner: false, noWinners: true })
+    }
+  })
+
+  // ── IA ───────────────────────────────────────────────────────────────────
+  // Estado real del partido para el tool `get_match_state`: el marcador de
+  // arriba (scoreHome/scoreAway) es solo un placeholder visual que nunca se
+  // actualiza (no hay forma de saber qué equipo anotó en una reacción
+  // genérica "GOL"), así que se prioriza el consenso real de la quiniela
+  // (`pool.consensus`, marcador que la mayoría de peers reportó y verificó)
+  // cuando existe, en vez de inventar un marcador.
+  function getMatchState() {
+    const minute    = document.getElementById('matchTime')?.textContent || '—'
+    const consensus = pool.consensus
+    const home = consensus?.home ?? (Number(document.getElementById('scoreHome')?.textContent) || 0)
+    const away = consensus?.away ?? (Number(document.getElementById('scoreAway')?.textContent) || 0)
+    return { minute, home, away, scoreConfirmed: consensus != null }
+  }
+
+  function onProposeBet({ home, away, amount }) {
+    const homeEl   = document.getElementById('betHome')
+    const awayEl   = document.getElementById('betAway')
+    const amountEl = document.getElementById('betAmount')
+    if (homeEl)   homeEl.value = home
+    if (awayEl)   awayEl.value = away
+    if (amountEl) amountEl.value = amount
+    showScreen('quiniela')
+    showToast('MouBot preparó tu apuesta — revisa y confirma en Quiniela')
+  }
+
+  let ai // se asigna abajo — `tools` necesita referenciarlo para traducir, pero `ai` necesita `tools` para crearse
+  const tools = createTools({
+    getMatchState,
+    board,
+    pool,
+    translateText: (text, targetLang) => ai.translate(text, targetLang),
+    onProposeBet
+  })
+
+  setIAStatus('Cargando modelo...')
+  showModelProgress(0)
+  ai = await createCommentator({
+    capabilities,
+    tools,
+    onProgress: (pct) => {
+      if (pct === null) {
+        showModelProgress(null)
+        markIAReady()
+      } else {
+        showModelProgress(pct)
+        setIAStatus(`Descargando ${Math.round(pct)}%`)
+      }
+    }
+  })
+
+  function markIAReady() {
+    setIAStatus('Listo')
+    updateAIRuntimeBadge()
+  }
+
+  function updateAIRuntimeBadge() {
+    const badge = document.getElementById('iaRuntimeBadge')
+    if (!badge) return
+    const { mode, workerId } = ai.getRuntimeInfo()
+    badge.hidden = false
+    badge.classList.toggle('delegated', mode === 'delegated')
+    badge.textContent = mode === 'delegated'
+      ? `Delegada · peer ${workerId?.slice(0, 8)}`
+      : 'Local en este dispositivo'
+  }
+  updateAIRuntimeBadge()
+  // La delegación puede cambiar en caliente (un worker aparece o se va de la
+  // sala) — commentator.js se reacomoda solo, acá solo refrescamos el badge.
+  capabilities.onChange(() => updateAIRuntimeBadge())
+
+  // ── Worker QVAC (delegación P2P) ────────────────────────────────────────
+  const workerToggle = document.getElementById('workerToggleInput')
+  const workerSub     = document.getElementById('workerToggleSub')
+
+  workerToggle?.addEventListener('change', async () => {
+    workerToggle.disabled = true
+    try {
+      if (workerToggle.checked) {
+        const publicKey = await becomeWorker()
+        capabilities.announce({ publicKey, tier: WORKER_TIER })
+        if (workerSub) workerSub.textContent = 'Activo — otros peers de la sala pueden delegarte inferencia pesada'
+        showToast('Ahora eres worker de IA para esta sala')
+      } else {
+        await stopBeingWorker()
+        capabilities.announce(null)
+        if (workerSub) workerSub.textContent = 'Presta este dispositivo para correr el modelo grande de otros peers de la sala'
+        showToast('Dejaste de ser worker de IA')
+      }
+    } catch (err) {
+      workerToggle.checked = !workerToggle.checked
+      showToast(`Error: ${err.message}`)
+    } finally {
+      workerToggle.disabled = false
     }
   })
 

@@ -55,17 +55,19 @@ export function getProviderPublicKey() { return providerPublicKey }
  * @param {{peerId:string, publicKey:string, tier:string}|null} opts.worker - worker conocido (de `p2p/capabilities.js`), o `null`
  * @param {object} opts.remoteModel - `modelSrc` a pedirle al worker (modelo grande)
  * @param {object} opts.localModel  - `modelSrc` a correr en este dispositivo si no hay worker disponible (modelo chico)
+ * @param {object} [opts.modelConfig] - `modelConfig` para `loadModel()` (p.ej. `{ tools: true }` para habilitar tool calling), igual para ambos modelos
  * @param {number} [opts.timeout] - ms de espera para la conexión delegada. La DHT puede tardar 15-45s en "calentar"
  *   en la primera conexión del proceso (ver comentario del SDK en `delegated-inference/consumer.js`); conexiones
  *   siguientes son sub-segundo. Con menos tiempo, una demora de red normal se confundiría con "peer caído".
  * @param {(pct:number|null)=>void} [opts.onProgress]
  * @returns {Promise<{modelId:string, mode:'delegated'|'local', peerId?:string}>}
  */
-export async function loadWithDelegateFallback({ worker, remoteModel, localModel, timeout = 60_000, onProgress }) {
+export async function loadWithDelegateFallback({ worker, remoteModel, localModel, modelConfig, timeout = 60_000, onProgress }) {
   if (worker) {
     try {
       const modelId = await loadModel({
         modelSrc: remoteModel,
+        modelConfig,
         delegate: {
           providerPublicKey: worker.publicKey,
           timeout,
@@ -80,6 +82,6 @@ export async function loadWithDelegateFallback({ worker, remoteModel, localModel
     }
   }
 
-  const modelId = await loadModel({ modelSrc: localModel, onProgress })
+  const modelId = await loadModel({ modelSrc: localModel, modelConfig, onProgress })
   return { modelId, mode: 'local' }
 }

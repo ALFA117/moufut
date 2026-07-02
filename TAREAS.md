@@ -105,7 +105,19 @@
 - [x] Tests básicos para capa P2P y wallet — `scripts/test-p2p-local.js`, `scripts/test-pool-sync.js`, `scripts/test-stress-peers.js`, `scripts/test-ai-commentator.js`
 - [x] `.gitignore` correcto (node_modules, `.pear/`, `*.key`/`*.secret`/`*.mnemonic`, `.env`)
 - [x] Documentación de API interna de cada módulo (`src/p2p`, `src/ai`, `src/wallet`) — JSDoc agregado a `swarm.js`, `chat.js`, `board.js`, `wallet.js` y `commentator.js` (los demás ya lo tenían). De paso se corrigió un bug real en `board.js`: `listeners` estaba a nivel de módulo en vez de dentro de `createBoard()`, compartiendo el arreglo entre instancias.
+- [x] Corregir el mensaje "funciona sin internet" en landing/README/package.json — era contradictorio: `src/p2p/swarm.js` usa Hyperswarm puro (DHT pública), y el descubrimiento inicial de peers sí necesita algo de conexión. Se investigó si hyperswarm v4 trae mDNS/descubrimiento LAN nativo (se llegó a ver esa afirmación en resúmenes de búsqueda) y **se descartó por no ser real**: el README crudo de `holepunchto/hyperswarm` no menciona mDNS/LAN/offline en ninguna parte, y `swarm.joinPeer(publicKey)` (conexión directa por clave pública) igual depende del transporte de HyperDHT para el hole-punching. El copy ahora dice "sin servidor central, resistente a caídas de red y censura", que es lo que el stack realmente garantiza.
+
+## v2 — Descubrimiento LAN real sin internet (no implementado)
+Para que MouFut funcione de verdad con el internet apagado (no solo "sin servidor
+propio") hace falta construir descubrimiento local, no activar un flag que ya
+exista: agregar `multicast-dns` como dependencia nueva para que los peers se
+anuncien por la LAN, conectarlos vía `swarm.joinPeer(publicKey)`, y evaluar si
+hace falta levantar un nodo DHT "bootstrap" propio alcanzable en la LAN (hyperdht
+permite apuntar a bootstrap nodes custom) para que el hole-punching tampoco
+dependa de internet. Es una pieza de infraestructura real, no trivial — se dejó
+fuera de esta ronda por el riesgo de tocar la capa de red más frágil del proyecto
+días antes de la entrega.
 
 ---
 
-*Actualizado: 2026-06-30*
+*Actualizado: 2026-07-01*

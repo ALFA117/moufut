@@ -1,13 +1,13 @@
 # ⚽ MouFut
 
-**El compañero de partido que funciona aunque se caiga el internet.**
+**El compañero de partido que funciona sin servidor central.**
 
 > *El partido pasa, no la conexión.*
 
 MouFut conecta a la hinchada de alrededor por una **malla peer-to-peer** (sin servidor),
 narra y traduce el partido con **IA que corre en tu propio teléfono** (sin nube), y
 liquida la **quiniela del grupo en USDt** sin intermediarios. Pensado para estadios
-llenos y bares a reventar durante el Mundial, donde no hay señal.
+llenos y bares a reventar durante el Mundial, donde la señal celular se satura.
 
 Proyecto para la **Tether Developers Cup**.
 Pista: **QVAC (IA local)**, apoyada en **Pears (P2P)** y **WDK (carteras)**.
@@ -18,10 +18,14 @@ Pista: **QVAC (IA local)**, apoyada en **Pears (P2P)** y **WDK (carteras)**.
 
 ## Por qué MouFut
 
-En un estadio lleno la red celular se satura y casi todas las apps de fútbol mueren.
-MouFut vive justo ahí: todo lo importante sobrevive **sin internet**.
+En un estadio lleno la red celular se satura y casi todas las apps de fútbol mueren
+porque dependen de un backend inalcanzable. MouFut vive justo ahí: no depende de un
+servidor propio que se pueda caer, saturar o censurar.
 
-- **Offline-first y resistente a censura** gracias a la malla P2P de Pears.
+- **Sin servidor central, resistente a censura** gracias a la malla P2P de Pears — el
+  descubrimiento inicial de peers usa la DHT pública de Hyperswarm, que sí necesita
+  algo de conexión (no hay forma de descubrirse 100% sin internet con el stack
+  actual; ver la nota en "Paso 6" más abajo).
 - **Privado por diseño**: la IA corre en el dispositivo (QVAC). Tus datos nunca salen.
 - **Dinero entre amigos sin intermediarios**: quinielas autocustodiales en USDt (WDK).
 

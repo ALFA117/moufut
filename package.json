@@ -1,6 +1,6 @@
 {
   "name": "moufut",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "El compañero de partido que funciona sin servidor central.",
   "main": "src/ui/index.html",
   "type": "module",

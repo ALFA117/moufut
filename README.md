@@ -275,7 +275,7 @@ node scripts/test-ai-commentator.js   # comentarista QVAC (requiere runtime Bare
 - [x] **Octavos** — P2P real (Hyperswarm) + comentarista QVAC on-device, verificado con `scripts/test-p2p-local.js`.
 - [x] **Cuartos** — reacciones a jugadas, tablón de predicciones, traducción de voz on-device, UI desktop completa.
 - [x] **Semis** — WDK integrado: quiniela de USDt con firmas Ed25519, consenso por mayoría, sync de estado para peers que se unen tarde.
-- [ ] **Final** — demo en vivo sobre un partido real del Mundial. Falta: probar en 2+ dispositivos físicos, probar con red congestionada/sin internet, grabar el video final (<3 min, ver `demo/guion.md`), y publicar el release `v1.0` en GitHub. Ver `TAREAS.md` para el detalle completo.
+- [ ] **Final** — demo en vivo sobre un partido real del Mundial. Ya resuelto: mensaje "sin internet" corregido para no contradecir la DHT, cartera en modo demo por defecto, imagen de preview (OG) a 1200×630, placeholder de video en la landing. Falta: probar en 2+ dispositivos físicos, probar con red congestionada/sin internet, grabar el video final (<3 min, ver `demo/guion.md`), y publicar el release `v1.0` en GitHub. Ver `TAREAS.md` para el detalle completo.
 
 ## Servicios de terceros / divulgación
 

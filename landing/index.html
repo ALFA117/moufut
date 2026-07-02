@@ -287,16 +287,31 @@
           <span class="section-eyebrow">Bajo el capó</span>
           <h2 class="section-title">Arquitectura</h2>
         </div>
-        <pre class="arch-diagram" data-reveal>┌─────────────────────────────────────────────┐
-│                  MouFut                      │
-│      (Bare / Pears runtime, multiplataforma) │
-├───────────────┬───────────────┬──────────────┤
-│   CAPA P2P     │   CAPA IA     │  CAPA DINERO  │
-│   (Pears)      │   (QVAC)      │   (WDK)       │
-│ swarm/chat/    │ comentarista/ │ cartera +     │
-│ tablón         │ traductor     │ quiniela USDt │
-└───────────────┴───────────────┴──────────────┘
-     Todo corre en el dispositivo. Sin backend propio.</pre>
+        <div class="arch-diagram-visual" data-reveal>
+          <div class="arch-runtime">
+            <span class="arch-runtime-label">MouFut</span>
+            <span class="arch-runtime-sub">Bare / Pears runtime · multiplataforma</span>
+          </div>
+          <div class="arch-connector" aria-hidden="true"></div>
+          <div class="arch-layers">
+            <div class="arch-layer-card layer-green">
+              <span class="arch-layer-tag">Capa P2P</span>
+              <strong>Pears</strong>
+              <p>swarm · chat · tablón de predicciones</p>
+            </div>
+            <div class="arch-layer-card layer-white">
+              <span class="arch-layer-tag">Capa IA</span>
+              <strong>QVAC</strong>
+              <p>comentarista · traductor de voz</p>
+            </div>
+            <div class="arch-layer-card layer-red">
+              <span class="arch-layer-tag">Capa dinero</span>
+              <strong>WDK</strong>
+              <p>cartera autocustodial · quiniela USDt</p>
+            </div>
+          </div>
+          <p class="arch-footnote">Todo corre en el dispositivo. Sin backend propio.</p>
+        </div>
       </div>
     </section>
 
@@ -319,12 +334,21 @@
           </a>
         </div>
 
-        <pre class="code-block" data-reveal><span class="comment"># opción 1: descarga el ZIP de arriba y descomprímelo, o clona con git</span>
+        <div class="terminal" data-reveal aria-hidden="true">
+          <div class="terminal-bar">
+            <span class="terminal-dot dot-red"></span>
+            <span class="terminal-dot dot-yellow"></span>
+            <span class="terminal-dot dot-green"></span>
+            <span class="terminal-title">moufut — instalación</span>
+          </div>
+          <div class="terminal-body" data-terminal></div>
+        </div>
+        <pre class="code-block sr-only-code"># opción 1: descarga el ZIP de arriba y descomprímelo, o clona con git
 git clone https://github.com/ALFA117/moufut.git
 cd moufut
 npm install
 
-<span class="comment"># abre la ventana desktop (Pear/Bare)</span>
+# abre la ventana desktop (Pear/Bare)
 pear run --dev .</pre>
         <p class="run-note" data-reveal>MouFut es una app de escritorio P2P — esta página es solo la presentación del proyecto, no la app en sí. Instrucciones completas en el README del repo. Necesitas el runtime Pear/Bare instalado (<a href="https://docs.pears.com/">docs.pears.com</a>) antes de <code>pear run --dev .</code>.</p>
       </div>

@@ -242,3 +242,131 @@ if (demoTabs.length) {
     activateDemoTab('chat')
   }
 }
+
+// ── Terminal animada de instalación (sección "Cómo correrlo") ───────────────
+// Simulación visual de los comandos reales del README — sin datos inventados,
+// el <pre class="sr-only-code"> de al lado trae el mismo contenido en texto
+// plano para lectores de pantalla y como respaldo si el JS no corre.
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, reduceMotion ? 0 : ms))
+}
+
+async function typeInto(el, text) {
+  if (reduceMotion) { el.textContent = text; return }
+  for (const ch of text) {
+    el.textContent += ch
+    await wait(14)
+  }
+}
+
+async function runInstallTerminal(container) {
+  container.innerHTML = ''
+  const cursor = document.createElement('span')
+  cursor.className = 'term-cursor'
+
+  function addCommentLine(text) {
+    const line = document.createElement('div')
+    line.className = 'term-line term-comment'
+    line.textContent = text
+    container.appendChild(line)
+  }
+
+  function addBlankLine() {
+    const line = document.createElement('div')
+    line.className = 'term-line'
+    line.innerHTML = '&nbsp;'
+    container.appendChild(line)
+  }
+
+  async function runProgressBar() {
+    const row = document.createElement('div')
+    row.className = 'term-progress-row'
+    const track = document.createElement('div')
+    track.className = 'term-progress-track'
+    const fill = document.createElement('div')
+    fill.className = 'term-progress-fill'
+    track.appendChild(fill)
+    const pct = document.createElement('span')
+    pct.className = 'term-progress-pct'
+    pct.textContent = '0%'
+    row.append(track, pct)
+    container.appendChild(row)
+
+    if (reduceMotion) {
+      fill.style.width = '100%'
+      pct.textContent = '100%'
+    } else {
+      await new Promise((resolve) => {
+        const duration = 1100
+        const start = performance.now()
+        function tick(now) {
+          const t = Math.min(1, (now - start) / duration)
+          const pctVal = Math.round(t * 100)
+          fill.style.width = pctVal + '%'
+          pct.textContent = pctVal + '%'
+          if (t < 1) requestAnimationFrame(tick)
+          else resolve()
+        }
+        requestAnimationFrame(tick)
+      })
+    }
+
+    const done = document.createElement('div')
+    done.className = 'term-line term-done'
+    done.textContent = '✓ listo'
+    container.appendChild(done)
+    await wait(200)
+  }
+
+  async function addCommandLine(cmdText, { progress } = {}) {
+    const line = document.createElement('div')
+    line.className = 'term-line'
+    const prompt = document.createElement('span')
+    prompt.className = 'term-prompt'
+    prompt.textContent = '$'
+    const textSpan = document.createElement('span')
+    line.append(prompt, textSpan, cursor)
+    container.appendChild(line)
+    await typeInto(textSpan, cmdText)
+    cursor.remove()
+    await wait(160)
+    if (progress) await runProgressBar()
+  }
+
+  addCommentLine('# opción 1: descarga el ZIP de arriba y descomprímelo, o clona con git')
+  await addCommandLine('git clone https://github.com/ALFA117/moufut.git')
+  await addCommandLine('cd moufut')
+  await addCommandLine('npm install', { progress: true })
+  addBlankLine()
+  addCommentLine('# abre la ventana desktop (Pear/Bare)')
+  await addCommandLine('pear run --dev .')
+
+  const finalLine = document.createElement('div')
+  finalLine.className = 'term-line'
+  const finalPrompt = document.createElement('span')
+  finalPrompt.className = 'term-prompt'
+  finalPrompt.textContent = '$'
+  finalLine.append(finalPrompt, cursor)
+  container.appendChild(finalLine)
+}
+
+const terminalEl = document.querySelector('[data-terminal]')
+if (terminalEl) {
+  const runSection = document.getElementById('run')
+  if (runSection && 'IntersectionObserver' in window) {
+    const runTermObserver = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            runInstallTerminal(terminalEl)
+            runTermObserver.unobserve(entry.target)
+          }
+        }
+      },
+      { threshold: 0.3 }
+    )
+    runTermObserver.observe(runSection)
+  } else {
+    runInstallTerminal(terminalEl)
+  }
+}

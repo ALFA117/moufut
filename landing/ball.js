@@ -83,7 +83,10 @@ function initBall(canvas) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true })
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2))
 
-  const geometry = new THREE.SphereGeometry(1.3, 64, 64)
+  // Radio 1.05: a z=4.4 con fov=32° el frustum solo deja ~1.26 de semi-altura
+  // visible en el plano del balón — con 1.3 se salía del encuadre (se veía
+  // cortado arriba/abajo). 1.05 deja margen real para el tilt del mouse.
+  const geometry = new THREE.SphereGeometry(1.05, 64, 64)
   const material = new THREE.MeshStandardMaterial({
     map: buildBallTexture(),
     roughness: 0.55,

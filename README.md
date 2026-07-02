@@ -145,27 +145,43 @@ Si la ventana no abre o se queda en blanco, revisa "El comentarista responde
 `[Stub] ...`" en Solución de problemas — a veces indica que el runtime no
 cargó bien los plugins nativos.
 
-### Paso 5 — Crear o importar tu cartera
+### Paso 5 — Tu cartera de sesión
 
-Dentro de la app, ve a la pestaña de **Cartera** y pulsa **"Nueva cartera"**.
+La app arranca con una **cartera de sesión ya lista** — no hace falta crear
+nada a mano. Al abrir, aparece un modal mostrando tu frase semilla BIP-39 de
+12 palabras: **anótala solo si querés reusar esa misma dirección después**,
+porque no se guarda en ningún lado (ni `localStorage` ni disco) y se pierde
+al cerrar o recargar la app. Es la opción más segura para un demo: nadie
+puede perder fondos reales por una frase que quedó tirada en texto plano.
 
-> ℹ️ **Por defecto la cartera arranca en MODO DEMO — no toca fondos reales.**
-> La dirección que ves se deriva de verdad de tu frase semilla BIP-39 (para
-> que la demo se vea auténtica), pero el balance y cualquier envío son
-> **simulados**: no hay conexión a Ethereum mainnet ni a ningún RPC. La frase
-> semilla (12 palabras) se genera con `bip39` y se guarda solo en el
-> `localStorage` de tu dispositivo — nunca sale de ahí ni se comparte con
-> nadie, pero en modo demo tampoco protege fondos reales porque no los hay.
+Vas a ver un banner rojo fijo con el modo activo — por ejemplo **"MODO DEMO ·
+Sepolia (testnet) · Balance simulado, sin fondos reales"**.
+
+> ℹ️ **Por defecto la cartera arranca en MODO DEMO sobre Sepolia (testnet) —
+> nunca toca fondos reales, sean de testnet o de mainnet.** La dirección se
+> deriva de verdad de la frase semilla (con `ethers`, para que la demo se vea
+> auténtica), pero el balance y cualquier envío son **simulados**: cero
+> conexión a ningún RPC.
 >
-> **Solo si sabes lo que haces:** puedes activar el modo mainnet real desde
-> la consola de devtools de Pear con
-> `localStorage.setItem('moufut_real_mainnet', '1')` y recargando la ventana.
-> Ahí sí la cartera opera contra el contrato real de USDt (ERC-20) en
-> Ethereum mainnet vía un RPC público — usa montos pequeños y bajo tu propio
-> riesgo; no es una testnet.
+> **Si querés que la cartera opere de verdad** (útil para probar el flujo
+> real de WDK antes de grabar el video), activá el modo real desde la consola
+> de devtools de Pear con `localStorage.setItem('moufut_real_mainnet', '1')`
+> y recargá la ventana. Por defecto eso conecta contra **Sepolia (testnet)**
+> — necesitás USDt de prueba, conseguible mintéandolo vos mismo desde el
+> contrato de prueba [`0x7169d38820dfd117c3fa1f22a697dba58d90ba06`](https://sepolia.etherscan.io/address/0x7169d38820dfd117c3fa1f22a697dba58d90ba06)
+> ("Test Tether USD", función pública `_giveMeATokens`) — no arriesga nada
+> real. El banner cambia a rojo sólido con "MODO REAL".
+>
+> **Cambiar a Ethereum mainnet real** (fondos reales, bajo tu propio riesgo,
+> NO recomendado para la demo): arrancá la app con la variable de entorno
+> `TESTNET=false` — por ejemplo `TESTNET=false pear run --dev .` (bash) o
+> `$env:TESTNET='false'; pear run --dev .` (PowerShell) — **además** de tener
+> activado `moufut_real_mainnet` en `localStorage`. El banner avisa
+> "¡FONDOS REALES!" cuando esta combinación está activa.
 
-Si ya tienes una cartera con una frase semilla existente, usa **"Importar
-cartera"** en vez de crear una nueva.
+Si ya tenés una frase semilla de una sesión anterior que anotaste, usá
+**"Importar cartera"** para volver a esa misma dirección. Guardarla es una
+decisión tuya y manual — la app nunca la persiste sola.
 
 ### Paso 6 — Unirte a una sala P2P
 
@@ -231,7 +247,7 @@ falta, VAR) — debe aparecer del otro lado casi al instante.
 
 ### Paso 8 — Probar la quiniela
 
-Con al menos una cartera creada (Paso 5), ve a la pestaña de **Quiniela**,
+Con la cartera de sesión ya lista (Paso 5), ve a la pestaña de **Quiniela**,
 ingresa un marcador predicho y un monto en USDt, y pulsa **"Apostar"**. Cada
 apuesta se firma con tu identidad Ed25519 y se transmite a todos los peers de
 la sala; verás el ✓ verde de "firma verificada" junto a cada participante.
@@ -298,12 +314,15 @@ node scripts/test-ai-commentator.js   # comentarista QVAC (requiere runtime Bare
 - **El balance de la cartera se queda en `—`**: en modo demo (el default) el
   balance es simulado y no debería fallar; si igual se queda en `—`, revisa
   que la cartera tenga una dirección (`wallet.address`). Si activaste el modo
-  mainnet real (`moufut_real_mainnet`), la app consulta el saldo de USDt vía
-  un RPC público (`eth.llamarpc.com`) y ese `—` puede ser el RPC caído o lento.
-- **Perdiste la frase semilla**: no hay forma de recuperarla — no queda
-  guardada en ningún servidor, solo en el `localStorage` del dispositivo
-  donde se creó. Crea una cartera nueva y, si tenía fondos reales, muévelos
-  antes de perder el acceso.
+  real (`moufut_real_mainnet`), la app consulta el saldo de USDt vía un RPC
+  público (Sepolia por defecto, `sepolia.drpc.org`; mainnet si además pusiste
+  `TESTNET=false`) y ese `—` puede ser el RPC caído o lento.
+- **Perdiste la frase semilla**: no hay forma de recuperarla — la cartera es
+  de sesión, nunca se guarda en ningún lado (ni siquiera `localStorage`), a
+  propósito. Si la necesitabas para volver a esa dirección, tenías que
+  haberla copiado del modal que aparece al crearla. En modo demo no hay nada
+  que perder (no hay fondos reales); en modo real, mové los fondos antes de
+  cerrar la sesión si no anotaste la frase.
 
 ## Estado actual (roadmap por rondas del hackathon)
 
@@ -316,7 +335,7 @@ node scripts/test-ai-commentator.js   # comentarista QVAC (requiere runtime Bare
 ## Servicios de terceros / divulgación
 
 - **QVAC SDK** (`@qvac/sdk`) — IA on-device. Sin APIs de IA en la nube.
-- **WDK** (`@tetherto/wdk`) — cartera autocustodial; las llaves nunca salen del dispositivo. Por defecto corre en **modo demo** (dirección real, balance/envíos simulados); el modo mainnet real (opt-in, ver Paso 5) opera con el contrato oficial de USDt en Ethereum mainnet y un RPC público (`eth.llamarpc.com`) — no es una testnet.
+- **WDK** (`@tetherto/wdk`) — cartera autocustodial y **efímera de sesión**: la frase semilla se genera en memoria al arrancar y nunca se guarda (ni `localStorage`, ni disco); las llaves nunca salen del dispositivo. Por defecto corre en **modo demo** (dirección real, balance/envíos simulados) sobre **Sepolia (testnet)**; el modo real (opt-in, ver Paso 5) opera de verdad contra el contrato de USDt de prueba en Sepolia por defecto — Ethereum mainnet real solo si además se arranca con `TESTNET=false`.
 - **Pears / Holepunch** (`hyperswarm`, `hypercore`, `autobase`) — transporte P2P.
 - No se usan backends propios ni servicios de IA en la nube.
 

@@ -36,6 +36,15 @@
   <!-- ── MAIN ──────────────────────────────────────────────────────── -->
   <main class="app-main" id="main-content">
 
+    <!-- ── BANNER MODO DEMO (siempre visible, en flujo, no fijo) ────── -->
+    <div class="demo-banner" id="demoBanner" role="status" hidden>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+        <path d="M12 9v4M12 17h.01"/>
+      </svg>
+      <span id="demoBannerText">MODO DEMO · No usar con fondos reales</span>
+    </div>
+
     <!-- ── PANTALLA 1: SALA DE PARTIDO ────────────────────────── -->
     <section class="screen active" id="screen-partido" aria-label="Sala de partido">
 
@@ -470,6 +479,35 @@
           Importar
         </button>
         <button class="btn-modal-secondary" id="btnImportCancel">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MODAL: SEED DE CARTERA DE SESIÓN ────────────────────────────── -->
+  <div class="modal-overlay" id="seedModalOverlay" hidden aria-modal="true" role="dialog" aria-labelledby="seedModalTitle">
+    <div class="modal-card glass-card">
+      <h2 class="modal-title" id="seedModalTitle">Cartera de sesión creada</h2>
+      <p class="modal-subtitle">Esta frase <strong>no se guarda en ningún lado</strong> — se pierde al cerrar o recargar la app. Copiala solo si querés reusar esta misma cartera después (con "Importar cartera").</p>
+      <div class="modal-field">
+        <label class="modal-label" for="seedModalPhrase">Frase semilla</label>
+        <textarea id="seedModalPhrase" class="mnemonic-input" rows="3" readonly aria-describedby="seedModalHint"></textarea>
+        <p class="mnemonic-hint" id="seedModalHint">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <rect x="3" y="11" width="18" height="11" rx="2"/>
+            <path d="M7 11V7a5 5 0 0110 0v4"/>
+          </svg>
+          Nunca sale del dispositivo — ni siquiera este mismo, una vez que cierres la app.
+        </p>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-modal-primary" id="btnSeedCopy">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <rect x="9" y="9" width="13" height="13" rx="2"/>
+            <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+          </svg>
+          Copiar frase
+        </button>
+        <button class="btn-modal-secondary" id="btnSeedClose">Entendido</button>
       </div>
     </div>
   </div>

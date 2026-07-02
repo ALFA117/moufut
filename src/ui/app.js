@@ -380,6 +380,45 @@ document.getElementById('importModalOverlay')?.addEventListener('click', e => {
   if (e.target === e.currentTarget) closeImportModal()
 })
 
+// ── Seed reveal modal (cartera de sesión efímera — ver wallet.js) ─────────────
+// Sin cierre por click-afuera a propósito: es la única vez que se ve esta
+// frase, mejor forzar el click explícito en "Entendido".
+function showSeedModal(mnemonic) {
+  const overlay = document.getElementById('seedModalOverlay')
+  const phraseEl = document.getElementById('seedModalPhrase')
+  if (!overlay || !phraseEl) return
+  phraseEl.value = mnemonic
+  overlay.hidden = false
+}
+
+function closeSeedModal() {
+  const overlay = document.getElementById('seedModalOverlay')
+  if (overlay) overlay.hidden = true
+}
+
+document.getElementById('btnSeedClose')?.addEventListener('click', closeSeedModal)
+document.getElementById('btnSeedCopy')?.addEventListener('click', () => {
+  const phrase = document.getElementById('seedModalPhrase')?.value
+  if (!phrase) return
+  navigator.clipboard?.writeText(phrase).catch(() => {})
+  showToast('Frase semilla copiada')
+})
+
+// ── Banner "MODO DEMO" ──────────────────────────────────────────────────────
+function updateDemoBanner(wallet) {
+  const banner = document.getElementById('demoBanner')
+  const text   = document.getElementById('demoBannerText')
+  if (!banner || !text) return
+  banner.hidden = false
+  if (wallet.isDemo) {
+    banner.classList.remove('demo-banner--real')
+    text.textContent = `MODO DEMO · ${wallet.network} · Balance simulado, sin fondos reales`
+  } else {
+    banner.classList.add('demo-banner--real')
+    text.textContent = `MODO REAL · ${wallet.network}${wallet.isTestnet ? ' · Testnet, sin valor real' : ' · ¡FONDOS REALES!'}`
+  }
+}
+
 // ── Main init ─────────────────────────────────────────────────────────────────
 async function init() {
   const codeEl = document.getElementById('roomCode')
@@ -397,7 +436,11 @@ async function init() {
   console.log('[MouFut] Mi identidad P2P:', identity.shortId, '| sala:', roomId)
 
   // ── Wallet ────────────────────────────────────────────────────────────────
+  // Cartera de sesión: se genera efímera al arrancar (ver wallet.js), nunca
+  // se guarda — por eso se muestra la seed una sola vez acá mismo.
   const wallet = await createWallet()
+  updateDemoBanner(wallet)
+  if (wallet.mnemonic) showSeedModal(wallet.mnemonic)
 
   // Ocultar skeleton y mostrar contenido real
   document.getElementById('walletSkeleton').hidden = true
@@ -662,9 +705,7 @@ async function init() {
       const w = await wallet.create()
       if (addrEl) { addrEl.textContent = w.address; addrEl.title = w.address }
       await refreshBalance()
-      showToast('Cartera creada. Guarda tu frase semilla.')
-      // Mostrar mnemónico temporalmente en toast
-      if (w.mnemonic) showToast(`Frase: ${w.mnemonic.split(' ').slice(0,3).join(' ')}...`)
+      if (w.mnemonic) showSeedModal(w.mnemonic)
     } catch (err) {
       showToast(`Error: ${err.message}`)
     } finally {

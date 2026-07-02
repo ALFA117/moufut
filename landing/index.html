@@ -393,7 +393,7 @@ pear run --dev .</pre>
           </details>
           <details class="faq-item">
             <summary>¿Es seguro poner dinero en la quiniela?</summary>
-            <p>La cartera arranca en <strong>modo demo</strong>: la dirección es real, pero el balance y los envíos son simulados — no toca fondos reales por defecto. Las apuestas se firman con Ed25519 y se verifican entre peers antes de contarlas; las llaves nunca salen del dispositivo. El modo mainnet real existe pero hay que activarlo a propósito (ver README) — no lo uses con dinero que no puedas perder.</p>
+            <p>La cartera es <strong>efímera de sesión</strong> (la frase semilla nunca se guarda, ni siquiera en el dispositivo) y arranca en <strong>modo demo sobre Sepolia (testnet)</strong>: la dirección es real, pero el balance y los envíos son simulados — no toca fondos reales por defecto, ni de testnet ni de mainnet. Las apuestas se firman con Ed25519 y se verifican entre peers antes de contarlas; las llaves nunca salen del dispositivo. El modo real existe pero hay que activarlo a propósito y usa Sepolia por defecto; Ethereum mainnet real requiere un paso extra explícito (ver README) — no lo uses con dinero que no puedas perder.</p>
           </details>
           <details class="faq-item">
             <summary>¿Qué pasa si no tengo Pear instalado?</summary>

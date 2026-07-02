@@ -163,6 +163,50 @@
   "¿y si no sé la IP del otro?". Backlog v3: `multicast-dns` para
   autodescubrir el bootstrap en la LAN sin escribir la IP a mano.
 
+## v3 — Seguridad de la cartera WDK ✅ (Checkpoint B)
+
+- [x] **Red: Sepolia (testnet) por defecto** en vez de Ethereum mainnet real.
+  Verificado contra el README instalado de `@tetherto/wdk-wallet-evm` (no
+  contra memoria): el paquete no tiene un parámetro `chainId` propio, sigue
+  la red que le indique la URL del `provider` — el propio ejemplo oficial del
+  paquete usa `provider: 'https://sepolia.drpc.org'`. `TESTNET=false` cambia
+  a Ethereum mainnet real (además hay que activar `moufut_real_mainnet` en
+  `localStorage` — dos pasos explícitos para dinero real, a propósito).
+  - Contrato de USDt de prueba en Sepolia: `0x7169d38820dfd117c3fa1f22a697dba58d90ba06`
+    ("Test Tether USD", 6 decimales, verificado en Sepolia Etherscan, con
+    función pública de auto-mint). No existe un USDT oficial de Tether en
+    testnet — se documentó esto explícitamente en vez de simular que sí.
+- [x] **Seed efímera, nunca persistida** — `src/wallet/wallet.js` ya no toca
+  `localStorage` para la frase semilla. Se genera una nueva con
+  `WDK.getRandomSeedPhrase()` cada vez que arranca la app (o se pulsa "Nueva
+  cartera"), vive solo en memoria, y se pierde al cerrar/recargar. Verificado
+  con un test que hace `localStorage.setItem` lanzar si se llama — cero
+  llamadas durante `createWallet()`, `.create()` e `.importFromMnemonic()`.
+- [x] Modal "Cartera de sesión creada" (`#seedModalOverlay` en
+  `src/ui/index.html`) muestra la frase una sola vez, con botón de copiar,
+  sin cierre por click-afuera (fuerza el click explícito en "Entendido") —
+  se dispara al arrancar la app y cada vez que se pulsa "Nueva cartera".
+- [x] Banner "MODO DEMO" (`#demoBanner`) — visible en las 3 pantallas (vive
+  en `.app-main`, en flujo normal, no `position:fixed`, para no pelearse con
+  el offset del header fijo). Texto dinámico: "MODO DEMO · Sepolia (testnet)
+  · Balance simulado" en el caso normal, cambia a rojo sólido con "MODO REAL"
+  o "¡FONDOS REALES!" si se activaron los opt-in de red real/mainnet.
+  Nota real de depuración: el primer intento no tenía `.demo-banner[hidden]
+  { display: none }` — como `.demo-banner{display:flex}` es una regla de
+  autor (no de user-agent), gana sobre el `[hidden]` nativo y el banner
+  quedaría visible siempre. Se corrigió con el mismo patrón que ya usan los
+  modales existentes (`.modal-overlay[hidden]`) en vez de reinventar uno.
+- [x] README (Paso 5) y landing (FAQ "¿Es seguro poner dinero en la
+  quiniela?") reescritos para reflejar cartera de sesión + Sepolia por
+  defecto, con instrucciones exactas de cómo escalar a modo real (Sepolia) y
+  luego a mainnet real (`TESTNET=false`, dos pasos explícitos).
+- [ ] **No verificado end-to-end contra un RPC real**: no se probó
+  `getBalance()`/`signAndSend()` contra Sepolia de verdad (necesitaría
+  activar `moufut_real_mainnet`, tener USDt de prueba minteado, y correr
+  dentro del runtime Pear real, no Node plano) — pendiente antes del video si
+  se quiere mostrar el flujo de dinero real en cámara. La lógica se revisó
+  por código y pasó las pruebas unitarias de red/seed que sí corren en Node.
+
 ---
 
 *Actualizado: 2026-07-01*

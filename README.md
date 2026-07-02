@@ -147,13 +147,20 @@ cargó bien los plugins nativos.
 
 Dentro de la app, ve a la pestaña de **Cartera** y pulsa **"Nueva cartera"**.
 
-> ⚠️ **Importante — es una cartera de Ethereum mainnet real, no una testnet.**
-> MouFut usa el contrato real de USDt (ERC-20) en Ethereum mainnet y un RPC
-> público. La frase semilla (12 palabras) se genera con `bip39` y se guarda
-> **solo en el `localStorage` de tu dispositivo** — nunca sale de ahí ni se
-> comparte con nadie. Anótala en un lugar seguro apenas se muestre: es la
-> única forma de recuperar los fondos de esa cartera. Para pruebas, usa
-> montos pequeños o una cartera nueva sin fondos reales.
+> ℹ️ **Por defecto la cartera arranca en MODO DEMO — no toca fondos reales.**
+> La dirección que ves se deriva de verdad de tu frase semilla BIP-39 (para
+> que la demo se vea auténtica), pero el balance y cualquier envío son
+> **simulados**: no hay conexión a Ethereum mainnet ni a ningún RPC. La frase
+> semilla (12 palabras) se genera con `bip39` y se guarda solo en el
+> `localStorage` de tu dispositivo — nunca sale de ahí ni se comparte con
+> nadie, pero en modo demo tampoco protege fondos reales porque no los hay.
+>
+> **Solo si sabes lo que haces:** puedes activar el modo mainnet real desde
+> la consola de devtools de Pear con
+> `localStorage.setItem('moufut_real_mainnet', '1')` y recargando la ventana.
+> Ahí sí la cartera opera contra el contrato real de USDt (ERC-20) en
+> Ethereum mainnet vía un RPC público — usa montos pequeños y bajo tu propio
+> riesgo; no es una testnet.
 
 Si ya tienes una cartera con una frase semilla existente, usa **"Importar
 cartera"** en vez de crear una nueva.
@@ -252,10 +259,11 @@ node scripts/test-ai-commentator.js   # comentarista QVAC (requiere runtime Bare
   runtime Bare/Pear — correr con `node` en vez de `pear run --dev .` hace que
   el worker no arranque y cae al stub de respaldo (funciona como está
   diseñado, pero no es inferencia real).
-- **El balance de la cartera se queda en `—`**: la app consulta el saldo real
-  de USDt en Ethereum mainnet vía un RPC público (`eth.llamarpc.com`); si ese
-  RPC está caído o lento, el balance puede tardar o fallar en cargar. No es
-  un error de tu cartera.
+- **El balance de la cartera se queda en `—`**: en modo demo (el default) el
+  balance es simulado y no debería fallar; si igual se queda en `—`, revisa
+  que la cartera tenga una dirección (`wallet.address`). Si activaste el modo
+  mainnet real (`moufut_real_mainnet`), la app consulta el saldo de USDt vía
+  un RPC público (`eth.llamarpc.com`) y ese `—` puede ser el RPC caído o lento.
 - **Perdiste la frase semilla**: no hay forma de recuperarla — no queda
   guardada en ningún servidor, solo en el `localStorage` del dispositivo
   donde se creó. Crea una cartera nueva y, si tenía fondos reales, muévelos
@@ -272,7 +280,7 @@ node scripts/test-ai-commentator.js   # comentarista QVAC (requiere runtime Bare
 ## Servicios de terceros / divulgación
 
 - **QVAC SDK** (`@qvac/sdk`) — IA on-device. Sin APIs de IA en la nube.
-- **WDK** (`@tetherto/wdk`) — cartera autocustodial; las llaves nunca salen del dispositivo. Opera sobre **Ethereum mainnet real** con el contrato oficial de USDt y un RPC público (`eth.llamarpc.com`) — no es una testnet.
+- **WDK** (`@tetherto/wdk`) — cartera autocustodial; las llaves nunca salen del dispositivo. Por defecto corre en **modo demo** (dirección real, balance/envíos simulados); el modo mainnet real (opt-in, ver Paso 5) opera con el contrato oficial de USDt en Ethereum mainnet y un RPC público (`eth.llamarpc.com`) — no es una testnet.
 - **Pears / Holepunch** (`hyperswarm`, `hypercore`, `autobase`) — transporte P2P.
 - No se usan backends propios ni servicios de IA en la nube.
 

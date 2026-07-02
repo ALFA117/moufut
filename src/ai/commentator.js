@@ -1,6 +1,7 @@
 import { completion, unloadModel } from '@qvac/sdk'
 import { SMOLLM2_360M_INST_Q8, QWEN3_1_7B_INST_Q4, LLAMA_TOOL_CALLING_1B_INST_Q4_K } from '@qvac/sdk/models'
 import { loadWithDelegateFallback } from './delegation.js'
+import { searchKnowledge } from './rag.js'
 
 // Modelo "rápido" para quips de eventos/táctica (chico, hardware débil) vs. el
 // que se le pide a un peer worker (más grande/capaz) cuando hay uno anunciado
@@ -176,10 +177,10 @@ async function ensureOrchestratorModel({ capabilities, onProgress }) {
  * y hace una segunda pasada con los resultados para la respuesta final en
  * lenguaje natural. Ver `node_modules/@qvac/sdk/dist/examples/tools/llamacpp-native-tools.js`.
  */
-async function runOrchestratorTurn(userText, tools) {
+async function runOrchestratorTurn(userText, tools, context = '') {
   const history = [
     { role: 'system', content: ORCHESTRATOR_PROMPT },
-    { role: 'user', content: userText }
+    { role: 'user', content: context ? `${context}Pregunta: ${userText}` : userText }
   ]
 
   const run = completion({ modelId: orchestratorModelId, history, stream: false, tools, toolDialect: orchestratorDialect, generationParams: { predict: 150 } })
@@ -234,7 +235,9 @@ async function runCompletion(userText, systemPrompt = SYSTEM_PROMPT, maxTokens =
  * Si se pasan `tools` (ver `ai/tools.js`), las preguntas libres
  * (`analyze({type:'question'})`) se enrutan por un orquestador con tool
  * calling que decide solo qué herramienta usar; si el orquestador no está
- * disponible, cae a una respuesta simple sin herramientas.
+ * disponible, cae a una respuesta simple sin herramientas. Toda pregunta
+ * libre, con o sin orquestador, primero busca contexto en la base de fútbol
+ * on-device (`ai/rag.js`) y lo agrega al prompt si encuentra algo relevante.
  *
  * @param {object} [opts]
  * @param {(pct: number|null) => void} [opts.onProgress] - progreso de descarga del modelo (0-100, `null` al terminar)
@@ -264,10 +267,18 @@ export async function createCommentator({ onProgress, capabilities, tools } = {}
     async analyze(event) {
       // Las preguntas libres del usuario van por su propio flujo
       if (event.type === 'question') {
+        // RAG sobre la base de fútbol (ver ai/rag.js) — si no hay resultados
+        // relevantes o QVAC no está disponible, devuelve [] y se responde
+        // igual, solo que sin el contexto extra.
+        const knowledge = await searchKnowledge(event.text)
+        const context = knowledge.length
+          ? `Contexto relevante de la base de conocimiento:\n${knowledge.map(k => `- ${k.content}`).join('\n')}\n\n`
+          : ''
+
         if (tools?.length) {
           try {
             await ensureOrchestratorModel({ capabilities, onProgress })
-            return await runOrchestratorTurn(event.text, tools)
+            return await runOrchestratorTurn(event.text, tools, context)
           } catch (err) {
             console.warn('[IA] Orquestador no disponible, respondo sin herramientas:', err.message)
             // sigue abajo al camino simple como respaldo
@@ -275,7 +286,7 @@ export async function createCommentator({ onProgress, capabilities, tools } = {}
         }
         if (!commentModelId) return `[MouBot offline] ${event.text}`
         try {
-          return await runCompletion(event.text, ASK_PROMPT)
+          return await runCompletion(context ? `${context}Pregunta: ${event.text}` : event.text, ASK_PROMPT)
         } catch {
           return `[MouBot offline] ${event.text}`
         }

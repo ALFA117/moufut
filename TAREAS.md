@@ -157,11 +157,18 @@
   el internet apagado de verdad (datos móviles apagados, Wi-Fi/hotspot sin
   salida a internet) — el test automatizado prueba el mecanismo en loopback,
   no reemplaza la prueba en campo. Hacerlo antes de grabar el video final.
-- [ ] El join por código de sala sigue siendo por IP:puerto manual del
-  bootstrap, no autodiscovery — aceptable para la demo (equipo controla ambos
-  dispositivos), pero es una limitación real a mencionar si un juez pregunta
-  "¿y si no sé la IP del otro?". Backlog v3: `multicast-dns` para
-  autodescubrir el bootstrap en la LAN sin escribir la IP a mano.
+- [x] **Backlog v3 resuelto**: autodiscovery del bootstrap LAN vía
+  `multicast-dns` — `src/p2p/lan-discovery.js` (`announceLanBootstrap()` /
+  `discoverLanBootstrap()`), `scripts/lan-bootstrap.js` ahora anuncia el nodo
+  por mDNS al arrancar, y la UI (`src/ui/app.js`) resuelve `?bootstrap=auto`
+  contra la LAN antes de unirse a la sala en vez de exigir `host:port` a
+  mano. Probado con `scripts/test-lan-discovery.js` (anuncia y descubre en la
+  misma máquina, confirma que el protocolo de anuncio/consulta mDNS
+  funciona). El camino manual `?bootstrap=host:port` se mantiene como
+  respaldo explícito para redes donde mDNS no llega (ej. routers que separan
+  bandas Wi-Fi). **Pendiente real**: repetir en dos dispositivos físicos —
+  este test, igual que `test-lan-offline.js`, corre en loopback/localhost y
+  no reemplaza la prueba en una red real con dos máquinas distintas.
 
 ## v3 — Seguridad de la cartera WDK ✅ (Checkpoint B)
 
@@ -349,14 +356,43 @@ además de `bare.js` para Bare) — sin bloqueo de runtime nativo.
 - [x] **Derivación de cuenta real**: `wdk.getAccount('ethereum', 0)` en
   109ms, dirección válida derivada (`0x179fd9F6cF45d38acCdcA3322B662621c85B568a`,
   42 caracteres, formato EVM correcto).
-- [x] **`getBalance()` contra RPC real de Sepolia**: respondió en 327ms,
-  balance `0` (cartera nueva sin fondear — resultado esperado). Confirma que
-  la ruta de red real (`https://sepolia.drpc.org` → contrato `0x7169d3...`)
-  funciona de punta a punta, no solo por código.
-- [ ] **No probado**: `signAndSend()`/`transfer()` real — requeriría fondear
-  la dirección de arriba con ETH de prueba (gas) y USDt de prueba (vía el
-  mint público del contrato), acción manual fuera del alcance de un script.
-  Sigue pendiente antes de mostrar el flujo de dinero real en cámara.
+- [x] **2 bugs reales encontrados y corregidos** (leyendo el código fuente
+  instalado de `@tetherto/wdk-wallet-evm`, no asumiendo la API):
+  1. `account.getBalance(NETWORK.usdt)` — `getBalance()` en este SDK **no
+     acepta argumentos y siempre devuelve el balance nativo (ETH)**, no el de
+     un token. El argumento se ignoraba en silencio. El método correcto para
+     un ERC-20 es `getTokenBalance(tokenAddress)`. Esto significa que la UI
+     de la wallet mostraba "0 USDt" (o el balance de ETH mal etiquetado como
+     USDt) sin importar el balance real de USDt de la cartera, en modo real.
+     Corregido en `src/wallet/wallet.js` (`getBalance()` del objeto público)
+     y en `scripts/test-wallet-sepolia.js`.
+  2. `account.transfer({ token, to, amount })` — el campo real que espera
+     `EvmTransferOptions` es `recipient`, no `to`. Con `to`, `recipient`
+     llegaba `undefined` y **cualquier envío real habría fallado siempre**
+     (nunca se detectó porque el modo demo, activo por defecto, no llega a
+     llamar a `account.transfer()`, y el script de prueba nunca había
+     probado `transfer()` hasta ahora). Corregido en
+     `src/wallet/wallet.js` (`signAndSend()`).
+- [x] **`scripts/test-wallet-sepolia.js` reescrito**: ahora usa
+  `getBalance()`/`getTokenBalance()` correctamente (lee ETH nativo y USDt por
+  separado), acepta `TEST_MNEMONIC` como variable de entorno para reusar
+  **la misma dirección** entre corridas (antes generaba una mnemonic al azar
+  cada vez, haciendo imposible fondearla y reusarla), imprime instrucciones
+  exactas de fondeo (faucet de ETH Sepolia + mint público del contrato de
+  prueba vía Etherscan), y si detecta que la cartera ya tiene ETH + USDt,
+  **intenta un transfer real** (auto-envío de 1 USDt) para confirmar
+  `signAndSend()`/`transfer()` de punta a punta.
+- [x] Corrido sin fondear (mnemonic al azar) contra el RPC real de Sepolia:
+  deriva cuenta, lee ambos balances correctamente (`0`/`0`, esperado para
+  cartera nueva) e imprime las instrucciones de fondeo — confirma que el
+  código nuevo funciona antes de necesitar fondos reales.
+- [ ] **Pendiente real, ahora es solo un paso manual de 2 minutos**: correr
+  `TEST_MNEMONIC="..." node scripts/test-wallet-sepolia.js` una vez para
+  obtener una dirección fija, fondearla con el faucet de ETH Sepolia + el
+  mint del contrato de prueba (links exactos los imprime el propio script),
+  y volver a correrlo para confirmar el `transfer()` real. Todo el código ya
+  está listo — solo falta la acción de fondeo en un navegador (captcha del
+  faucet), que no es automatizable desde acá.
 - Nota de depuración real: la primera versión del script llamaba
   `account.getAddress()` sin `await` y logueaba `[object Promise]` en vez de
   la dirección — `getBalance()` sí funcionaba porque WDK resuelve

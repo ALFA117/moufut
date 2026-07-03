@@ -213,11 +213,19 @@ de a los nodos públicos de internet.
    npm run lan-bootstrap
    ```
 
-   Esto imprime la IP:puerto local, por ejemplo `192.168.1.75:49737`, y la URL
-   lista para copiar: `?bootstrap=192.168.1.75:49737#mundial-mx-2026`.
+   Esto imprime la IP:puerto local, por ejemplo `192.168.1.75:49737`, y lo
+   anuncia por mDNS en la red local para que no haga falta escribirlo a mano.
 
 2. En los **demás** dispositivos (misma red Wi-Fi/hotspot, internet apagado),
-   arrancá la app agregando ese parámetro a la URL/hash:
+   arrancá la app con `?bootstrap=auto` — se autodescubre el nodo del paso 1
+   por mDNS, sin escribir ninguna IP:
+
+   ```bash
+   pear run --dev . ?bootstrap=auto#mundial-mx-2026
+   ```
+
+   Si el mDNS no llega a esa red (ej. routers que lo bloquean entre bandas
+   Wi-Fi), usá la IP:puerto exacta que imprimió el paso 1 en su lugar:
 
    ```bash
    pear run --dev . ?bootstrap=192.168.1.75:49737#mundial-mx-2026
@@ -228,9 +236,11 @@ de a los nodos públicos de internet.
 
 Reproducido y verificado con `scripts/test-lan-offline.js` (dos peers se
 descubren y mandan un mensaje usando solo un bootstrap aislado en loopback,
-sin tocar la DHT pública). Pendiente repetir en dos dispositivos físicos
-reales con el internet apagado de verdad (dato del móvil apagado, sin Wi-Fi
-con salida a internet) — ver checklist en `TAREAS.md`.
+sin tocar la DHT pública) y `scripts/test-lan-discovery.js` (el anuncio/
+autodescubrimiento por mDNS se encuentra a sí mismo correctamente). Pendiente
+repetir ambos en dos dispositivos físicos reales con el internet apagado de
+verdad (dato del móvil apagado, sin Wi-Fi con salida a internet) — ver
+checklist en `TAREAS.md`.
 
 ### Paso 7 — Probar con un segundo peer
 

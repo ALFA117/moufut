@@ -1,5 +1,6 @@
 import { loadModel, unloadModel, completion } from '@qvac/sdk'
 import { QWEN3_1_7B_INST_Q4, LLAMA_3_2_1B_INST_Q4_0, SALAMANDRATA_2B_INST_Q4 } from '@qvac/sdk/models'
+import { discoverLanBootstrap } from '../p2p/lan-discovery.js'
 import { createSwarm }        from '../p2p/swarm.js'
 import { createChat }         from '../p2p/chat.js'
 import { createCapabilities } from '../p2p/capabilities.js'
@@ -18,15 +19,31 @@ const roomId = location.hash.replace('#', '').trim() || 'moufut-default'
 // ── Modo LAN sin internet ────────────────────────────────────────────────────
 // `?bootstrap=host:port` apunta a un nodo propio levantado con
 // `scripts/lan-bootstrap.js` en la misma red local, en vez de la DHT pública
-// (que necesita internet). Sin este parámetro, comportamiento normal.
-const lanBootstrap = (() => {
-  const raw = new URLSearchParams(location.search).get('bootstrap')
-  if (!raw) return null
-  const [host, portStr] = raw.split(':')
+// (que necesita internet). `?bootstrap=auto` lo busca solo por mDNS en la LAN
+// (ver src/p2p/lan-discovery.js y scripts/lan-bootstrap.js) en vez de tener
+// que escribir la IP a mano. Sin este parámetro, comportamiento normal.
+const bootstrapParam = new URLSearchParams(location.search).get('bootstrap')
+let lanBootstrap = null
+if (bootstrapParam && bootstrapParam !== 'auto') {
+  const [host, portStr] = bootstrapParam.split(':')
   const port = Number(portStr)
-  if (!host || !port) return null
-  return [{ host, port }]
-})()
+  if (host && port) lanBootstrap = [{ host, port }]
+}
+
+/** Resuelve `?bootstrap=auto` por mDNS antes de unirse a la sala; para
+ * `host:port` explícito o ausencia del parámetro, no hace nada (ya resuelto
+ * arriba de forma síncrona). */
+async function resolveLanBootstrap() {
+  if (bootstrapParam !== 'auto') return lanBootstrap
+  const found = await discoverLanBootstrap()
+  if (found) {
+    lanBootstrap = [found]
+    console.log(`[MouFut] Bootstrap LAN encontrado por mDNS: ${found.host}:${found.port}`)
+  } else {
+    console.warn('[MouFut] ?bootstrap=auto — no se encontró ningún nodo bootstrap en la LAN (mDNS sin respuesta), usando DHT pública')
+  }
+  return lanBootstrap
+}
 
 // ── Prefer reduced motion ────────────────────────────────────────────────────
 const REDUCE_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -508,6 +525,7 @@ async function init() {
   updateConnectionStatus({ connected: false, peers: 0 })
 
   // ── P2P ──────────────────────────────────────────────────────────────────
+  await resolveLanBootstrap()
   const swarm        = await createSwarm(roomId, { bootstrap: lanBootstrap })
   const identity      = createIdentity(swarm.keypair)
   const chat          = createChat(swarm)

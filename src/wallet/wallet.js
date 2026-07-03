@@ -128,7 +128,13 @@ export async function createWallet() {
       if (demo) return DEMO_BALANCE
       if (!account) return null
       try {
-        const bal = await account.getBalance(NETWORK.usdt)
+        // `getBalance()` (sin argumentos) devuelve el balance NATIVO (ETH) en
+        // este SDK — el argumento que recibía acá se ignoraba silenciosamente.
+        // El balance de un token ERC-20 (USDt) es `getTokenBalance(address)`.
+        // Verificado leyendo wallet-account-read-only-evm.js instalado, no
+        // asumido — este bug hacía que la UI mostrara "0 USDt" siempre, sin
+        // importar el balance real de USDt de la cartera.
+        const bal = await account.getTokenBalance(NETWORK.usdt)
         return typeof bal === 'bigint' ? Number(bal) / 1e6 : Number(bal)
       } catch {
         return null
@@ -142,9 +148,13 @@ export async function createWallet() {
         return { demo: true, txHash: '0xDEMO' + Date.now().toString(16) }
       }
       if (!account) throw new Error('No hay cartera activa')
+      // `EvmTransferOptions` del SDK instalado usa `recipient`, no `to` — con
+      // `to` el campo real (`recipient`) llegaba `undefined` y el envío en
+      // modo real habría fallado siempre. Verificado en
+      // wallet-account-read-only-evm.js, no asumido.
       return account.transfer({
         token: NETWORK.usdt,
-        to,
+        recipient: to,
         amount: BigInt(Math.round(amount * 1e6))
       })
     },

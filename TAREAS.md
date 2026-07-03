@@ -323,9 +323,10 @@ estos 3 candidatos en particular.
     no encontró un issue existente que coincida — lo más cercano es
     [holepunchto/pear#961](https://github.com/holepunchto/pear/issues/961)
     (prebuild de `bare-pipe` faltante en Windows, síntoma distinto pero mismo
-    módulo nativo sospechoso). Borrador de issue nuevo listo en
-    `scripts/pear-pre-issue-draft.md`, pendiente de que Edgar lo revise y
-    publique.
+    módulo nativo sospechoso). Issue publicado:
+    [holepunchto/pear#1125](https://github.com/holepunchto/pear/issues/1125)
+    — pendiente de respuesta del equipo de Holepunch antes de poder correr
+    cualquier prueba real en el runtime de Pear en esta máquina.
   - `worker.js` (nuevo, raíz del proyecto) — el worker entry que el hook
     genera (`qvac/worker.pear.entry.mjs`) necesita para existir, aunque su
     ausencia no era la causa del timeout de arriba, sí era un bug real

@@ -1,3 +1,5 @@
+import { loadModel, unloadModel, completion } from '@qvac/sdk'
+import { QWEN3_1_7B_INST_Q4, LLAMA_3_2_1B_INST_Q4_0, SALAMANDRATA_2B_INST_Q4 } from '@qvac/sdk/models'
 import { createSwarm }        from '../p2p/swarm.js'
 import { createChat }         from '../p2p/chat.js'
 import { createCapabilities } from '../p2p/capabilities.js'
@@ -28,6 +30,85 @@ const lanBootstrap = (() => {
 
 // ── Prefer reduced motion ────────────────────────────────────────────────────
 const REDUCE_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+// ── Dev: prueba de carga real de modelos candidatos (Checkpoint C / Fase 2) ──
+// `?dev=1` expone un botón que corre la misma prueba que
+// `scripts/test-model-load.js`, pero dentro del runtime real de Pear (esta
+// UI) en vez de Node plano, donde el worker nativo de QVAC nunca arranca.
+const IS_DEV = new URLSearchParams(location.search).has('dev')
+
+const DEV_MODEL_CANDIDATES = [
+  { label: 'QWEN3_1_7B_INST_Q4 (1.7B, q4)', modelSrc: QWEN3_1_7B_INST_Q4 },
+  { label: 'LLAMA_3_2_1B_INST_Q4_0 (1B, q4_0)', modelSrc: LLAMA_3_2_1B_INST_Q4_0 },
+  { label: 'SALAMANDRATA_2B_INST_Q4 (2B, q4, español nativo)', modelSrc: SALAMANDRATA_2B_INST_Q4 }
+]
+
+async function testDevModelCandidate({ label, modelSrc }, log) {
+  log(`\n=== ${label} ===`)
+  const t0 = Date.now()
+  let modelId
+  try {
+    modelId = await loadModel({
+      modelSrc,
+      onProgress: (p) => { if (p.percentage != null) log(`[carga] ${p.percentage.toFixed(0)}%`, true) }
+    })
+  } catch (err) {
+    log(`No cargo: ${err.message}`)
+    return
+  }
+  const loadS = ((Date.now() - t0) / 1000).toFixed(1)
+  log(`Cargo en ${loadS}s. ID: ${modelId}`)
+
+  try {
+    const t1 = Date.now()
+    const run = completion({
+      modelId,
+      history: [
+        { role: 'system', content: 'Eres un comentarista deportivo apasionado de futbol. Responde siempre en 1-2 oraciones cortas, estilo radio en vivo.' },
+        { role: 'user', content: 'Comenta este momento: GOL de Mbappe al minuto 45.' }
+      ],
+      stream: false,
+      generationParams: { predict: 64 }
+    })
+    const result = await run.final
+    const genS = ((Date.now() - t1) / 1000).toFixed(1)
+    log(`Respuesta (${genS}s): "${result.contentText ?? ''}"`)
+  } catch (err) {
+    log(`Cargo pero fallo la inferencia: ${err.message}`)
+  }
+
+  try { await unloadModel({ modelId }) } catch {}
+  log('(descargado)')
+}
+
+function setupDevModelTest() {
+  const card   = document.getElementById('devModelTestCard')
+  const btn    = document.getElementById('btnDevModelTest')
+  const output = document.getElementById('devModelTestOutput')
+  if (!card || !btn || !output) return
+  card.hidden = false
+
+  let lastLineReplaces = false
+  function log(msg, replaceLast = false) {
+    const lines = output.textContent.split('\n')
+    if (replaceLast && lastLineReplaces) lines[lines.length - 1] = msg
+    else lines.push(msg)
+    output.textContent = lines.join('\n')
+    lastLineReplaces = replaceLast
+  }
+
+  btn.addEventListener('click', async () => {
+    btn.disabled = true
+    output.textContent = 'Corriendo prueba de carga real (esto puede tardar varios minutos)...'
+    for (const candidate of DEV_MODEL_CANDIDATES) {
+      await testDevModelCandidate(candidate, log)
+    }
+    log('\n=== Listo ===')
+    btn.disabled = false
+  })
+}
+
+if (IS_DEV) setupDevModelTest()
 
 // ── Navigation ───────────────────────────────────────────────────────────────
 const screens  = document.querySelectorAll('.screen')

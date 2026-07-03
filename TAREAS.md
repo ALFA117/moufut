@@ -267,14 +267,72 @@ runtime real de Bare/Pear para levantar el worker nativo; en Node plano no
 arranca, sin importar el modelo. No es un problema de tamaño/cuantización de
 estos 3 candidatos en particular.
 
-- [ ] **Pendiente real**: correr `test-model-load.js` (o un disparador
-  equivalente) dentro de `pear run --dev .` en la máquina objetivo — no
-  automatizable desde aquí porque `pear` está instalado pero sin el PATH del
-  sistema completo (`pear --version` avisa que falta agregar
-  `%APPDATA%\pear\bin`), y el punto de entrada del proyecto es la app de
-  escritorio (`src/ui/index.html`), no un script headless — habría que
-  exponer la prueba como una acción manual en la UI (ej. botón oculto en modo
-  dev) para que pase por el runtime real.
+- [x] Disparador manual en la UI para correr la prueba dentro del runtime real
+  — `src/ui/app.js` (`setupDevModelTest`) + panel oculto en
+  `src/ui/index.html` (`#devModelTestCard`), activo solo con `?dev=1` en la
+  URL de la app (ej. `pear run --dev .` y luego navegar a `?dev=1#sala`).
+  Reusa la misma lógica de
+  `scripts/test-model-load.js` (`loadModel`/`completion`/`unloadModel` de
+  `@qvac/sdk`, los 3 candidatos verificados contra el registro real) pero
+  corriendo en la propia app de escritorio en vez de Node plano, y muestra el
+  resultado en un `<pre>` en pantalla en vez de la consola.
+- [ ] **Pendiente real**: click en el botón "Probar..." corriendo
+  `pear run --dev .` en la máquina objetivo, para confirmar si los 3
+  candidatos cargan e infieren de verdad dentro del runtime Bare/Pear (el
+  timeout de 30s en Node plano es una limitación conocida de ese entorno, no
+  necesariamente del runtime real) — no ejecutable desde aquí porque abre una
+  ventana de escritorio nativa, no una salida headless.
+- **Bloqueo encontrado al intentar verificar lo de arriba — investigado a
+  fondo, causa raíz identificada en el runtime de Pear, no en este
+  proyecto**: `pear run --dev .` falla *antes* de llegar a abrir la ventana,
+  en el hook `pear.pre` (`@qvac/sdk/pear-pre`) con `ERR_INVALID_CONFIG:
+  pear.pre ".../dist/pear/pre.js" did not respond with configuration data in
+  time`.
+  - Medido el tiempo real de la falla: **5.76s**, calzando exacto con la
+    constante `IDLE_TIMEOUT = 5000` encontrada leyendo el propio código de
+    Pear (`%APPDATA%\pear\by-dkey\...\boot.bundle`, función `#run` que lanza
+    el subproceso del hook con `stdio: ['ignore','pipe','pipe','overlapped']`
+    — el 4º canal, tipo named-pipe de Windows, es el usado para el IPC del
+    hook). El hook nunca manda ni un byte por ese canal dentro de la ventana
+    de 5s.
+  - Se descartó que fuera el código de `pre.js` de QVAC: faltaba un
+    `worker.js` en la raíz del proyecto (requerido por
+    `normalizePearWorkerPath`/`DEFAULT_PEAR_WORKER` en `pre.js` — se creó,
+    ver más abajo), y aun así el error fue **idéntico byte por byte y en el
+    mismo tiempo**, lo que prueba que el hook ni siquiera llega a ejecutar su
+    lógica (el fallo es en el transporte IPC, no en `configure()`).
+  - Se descartó que fuera la instalación incompleta de Pear (el warning
+    "prepend ... to PATH"): se corrió el auto-fix sugerido por la propia
+    herramienta (`pear run pear://runtime`) y **no cambió nada**; se probó
+    además invocando directamente el binario nativo
+    (`%APPDATA%\pear\current\by-arch\win32-x64\bin\pear-runtime.exe run --dev
+    .`), sin pasar por el spawner de PATH, y el error fue el mismo.
+  - **Conclusión**: es un bug/incompatibilidad del canal IPC `overlapped`
+    (named pipe de Windows) que Pear usa para hooks `pear.pre`, específico de
+    esta instalación/versión de Pear en Windows — no algo arreglable desde el
+    código de este proyecto. Bloquea **cualquier** hook `pear.pre`, no solo el
+    de QVAC. Pendiente real: reportar/buscar el issue en el repo de
+    `holepunchto/pear`, probar una versión distinta de Pear, o probar en otro
+    SO (Linux/Mac) o vía WSL para aislar si es específico de Windows.
+  - **Confirmado con repro mínimo**: se armó una app Pear de juguete
+    (`type: "terminal"`, sin ninguna dependencia de terceros) con un
+    `pre.js` trivial que solo responde al primer mensaje del pipe — mismo
+    error exacto, mismo timing (~5-6s). Esto descarta por completo que sea
+    algo del hook de QVAC; es 100% del runtime de Pear en Windows. Búsqueda
+    en GitHub (`holepunchto/pear`, `holepunchto/bare-pipe`, `tetherto/qvac`)
+    no encontró un issue existente que coincida — lo más cercano es
+    [holepunchto/pear#961](https://github.com/holepunchto/pear/issues/961)
+    (prebuild de `bare-pipe` faltante en Windows, síntoma distinto pero mismo
+    módulo nativo sospechoso). Borrador de issue nuevo listo en
+    `scripts/pear-pre-issue-draft.md`, pendiente de que Edgar lo revise y
+    publique.
+  - `worker.js` (nuevo, raíz del proyecto) — el worker entry que el hook
+    genera (`qvac/worker.pear.entry.mjs`) necesita para existir, aunque su
+    ausencia no era la causa del timeout de arriba, sí era un bug real
+    separado que habría bloqueado el arranque una vez resuelto el problema de
+    IPC. Contenido: `initializeWorkerCore()` + `ensureRPCSetup()` de
+    `@qvac/sdk/worker-core` (sin registrar plugins de nuevo — eso ya lo hace
+    el archivo generado antes de importar este).
 
 ---
 

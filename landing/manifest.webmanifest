@@ -1,0 +1,13 @@
+{
+  "name": "MouFut",
+  "short_name": "MouFut",
+  "description": "Chat P2P, comentarista IA on-device y quiniela en USDt, sin servidor central.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#05070A",
+  "theme_color": "#05070A",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}

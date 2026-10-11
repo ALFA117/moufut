@@ -362,3 +362,26 @@ Apache 2.0 — ver [LICENSE](./LICENSE).
 ---
 
 *MouFut — Tether Developers Cup 2026.*
+
+## FIX_NOTES — landing (rediseño /diseno, 2026-10-11)
+
+- **Solo había modo oscuro**: ahora hay modo claro ("día de partido"), con botón luna/sol en el nav. Sin elección guardada sigue al sistema, y un script inline lo aplica antes del primer pintado. Los 30 `rgba(255,255,255,…)` y `rgba(5,7,10,…)` sueltos de `styles.css` pasaron a tokens (`--ink-rgb`, `--bg-rgb`), así que bordes y superficies se invierten solos.
+- **Texto por debajo de 12 px**: 9 reglas en 0.65–0.72 rem (tabla del stack, etiquetas de capa, mockup del demo) subieron a 0.75 rem.
+- **Áreas táctiles**: el menú móvil y el botón de GitHub pasaron de 40 a 44 px; los enlaces del nav ganaron alto de toque.
+- **SEO**: faltaban canonical, `og:url`, `og:site_name`, `theme-color`, `robots.txt`, `sitemap.xml`, manifest y `apple-touch-icon.png`.
+
+## DESIGN_NOTES — landing
+
+- **Fondo 3D: el dado sacó la receta 1 (figuras CSS 3D + constelación)**, en JS puro porque la landing no tiene bundler (`landing/ambient.js`, capa `#ambient` fija detrás de todo). Se adaptó al proyecto:
+  - la **constelación es la malla P2P de la hinchada**: "peers" verdes (y algunos rojos) que vienen hacia la cámara y se enlazan entre sí cuando están cerca, sin ningún nodo central, igual que la app;
+  - las figuras son **cubos** (los teléfonos de la grada, cada uno un peer), un **giroscopio de anillos** (la órbita del balón) y **prismas** (el banderín del córner), en verde cancha y rojo tarjeta, tomados de los tokens.
+- Profundidad: cada figura se mueve con el puntero y el scroll según su profundidad, y las estrellas se desplazan con el puntero. En celular hay la mitad de elementos, el DPR se limita a 2, el loop se pausa con la pestaña oculta y con `prefers-reduced-motion` todo queda quieto. En modo claro se atenúa al 55 %.
+- Se quitó la cuadrícula de puntos (`body::after`), que era un fondo genérico; la aurora verde y roja (`body::before`) se queda como la capa más lejana. El balón 3D del hero no se tocó.
+
+### Checklist de 2 minutos en el celular
+
+1. Abre moufut.vercel.app: detrás del hero flotan cubos y anillos, y hay puntos que se enlazan como una red.
+2. Toca el sol o la luna del nav: cambia a modo claro y se mantiene al recargar.
+3. Haz scroll hasta "En números": las figuras se quedan atrás a distinta velocidad.
+4. Abre el menú (☰): el botón se toca sin fallar.
+5. Sin scroll horizontal en ningún momento.

@@ -5,8 +5,9 @@
 > *El partido pasa, no la conexión.*
 
 MouFut conecta a la hinchada de alrededor por una **malla peer-to-peer** (sin servidor),
-narra y traduce el partido con **IA que corre en tu propio teléfono** (sin nube), y
-liquida la **quiniela del grupo en USDt** sin intermediarios. Pensado para estadios
+comenta el partido y traduce texto con **IA que corre en tu propio equipo** (sin nube), y
+lleva la **quiniela del grupo** con apuestas firmadas entre peers (la cartera WDK arranca
+en modo demo y el pago a los ganadores todavía no se envía desde la app). Pensado para estadios
 llenos y bares a reventar durante el Mundial, donde la señal celular se satura.
 
 Proyecto para la **Tether Developers Cup**.
@@ -28,18 +29,21 @@ servidor propio que se pueda caer, saturar o censurar.
   MouFut también soporta un **modo LAN 100% sin internet**: un dispositivo levanta su
   propio nodo bootstrap de HyperDHT en la red local y los demás se conectan ahí en vez
   de a internet (ver "Paso 6b" más abajo).
-- **Privado por diseño**: la IA corre en el dispositivo (QVAC). Tus datos nunca salen.
-- **Dinero entre amigos sin intermediarios**: quinielas autocustodiales en USDt (WDK).
+- **Privado por diseño**: la IA corre en tu equipo (QVAC) o, si alguien de la sala se
+  ofrece como worker, en el equipo de ese peer; nunca en una nube.
+- **Quiniela entre amigos**: apuestas firmadas (Ed25519) y marcador por consenso entre
+  peers, con cartera autocustodial WDK (modo demo por defecto). La app calcula a los
+  ganadores; la transferencia en USDt todavía no está automatizada.
 
 ## Las tres capas
 
 | Capa | Stack de Tether | Qué hace |
 |------|-----------------|----------|
 | **P2P** | Pears (Holepunch) | Descubrimiento de peers, chat de hinchada, reacciones a las jugadas, tablón de predicciones. Sin servidor. |
-| **IA** | QVAC SDK | Comentarista/analista táctico y **traducción de voz en vivo**, todo **on-device**. |
-| **Dinero** | WDK | Cartera autocustodial y quiniela en USDt liquidada peer-to-peer. |
+| **IA** | QVAC SDK | Comentarista/analista táctico y traducción de texto, todo **on-device**. La traducción de voz (`src/ai/translator.js`, Whisper + NMT) está escrita pero aún no se conecta a la UI. |
+| **Dinero** | WDK | Cartera autocustodial (modo demo por defecto) y quiniela con apuestas firmadas. La app calcula a los ganadores; el pago en USDt no se envía automáticamente. |
 
-> **Regla de la pista QVAC:** toda la IA (inferencia, voz, traducción) corre en el
+> **Regla de la pista QVAC:** toda la IA (inferencia y traducción) corre en el
 > dispositivo mediante el SDK de QVAC. **Cero APIs de IA en la nube.**
 
 ## Arquitectura
@@ -52,9 +56,9 @@ servidor propio que se pueda caer, saturar o censurar.
 │   CAPA P2P     │   CAPA IA      │  CAPA DINERO   │
 │   (Pears)      │   (QVAC)       │   (WDK)        │
 │ swarm/chat/    │ comentarista/  │ cartera +      │
-│ tablón         │ traductor      │ quiniela USDt  │
+│ tablón         │ traducción     │ quiniela       │
 └───────────────┴───────────────┴───────────────┘
-     Todo corre en el teléfono. Sin backend propio.
+     Todo corre en el equipo. Sin backend propio.
 ```
 
 ## Estructura del repo
@@ -338,9 +342,9 @@ node scripts/test-ai-commentator.js   # comentarista QVAC (requiere runtime Bare
 
 - [x] **Ronda X** — andamiaje del repo, estructura y stubs comentados.
 - [x] **Octavos** — P2P real (Hyperswarm) + comentarista QVAC on-device, verificado con `scripts/test-p2p-local.js`.
-- [x] **Cuartos** — reacciones a jugadas, tablón de predicciones, traducción de voz on-device, UI desktop completa.
+- [x] **Cuartos** — reacciones a jugadas, tablón de predicciones, módulo de traducción de voz on-device (escrito, aún sin conectar a la UI), UI desktop completa.
 - [x] **Semis** — WDK integrado: quiniela de USDt con firmas Ed25519, consenso por mayoría, sync de estado para peers que se unen tarde.
-- [ ] **Final** — demo en vivo sobre un partido real del Mundial. Ya resuelto: mensaje "sin internet" corregido para no contradecir la DHT, cartera en modo demo por defecto, imagen de preview (OG) a 1200×630, placeholder de video en la landing. Falta: probar en 2+ dispositivos físicos, probar con red congestionada/sin internet, grabar el video final (<3 min, ver `demo/guion.md`), y publicar el release `v1.0` en GitHub. Ver `TAREAS.md` para el detalle completo.
+- [ ] **Final** — demo en vivo sobre un partido real del Mundial. Ya resuelto: mensaje "sin internet" corregido para no contradecir la DHT, cartera en modo demo por defecto, imagen de preview (OG) a 1200×630, placeholder de video en la landing. Falta: probar en 2+ dispositivos físicos, probar con red congestionada/sin internet y grabar el video final (<3 min, ver `demo/guion.md`). El release `v1.0` ya está publicado. Ver `TAREAS.md` para el detalle completo.
 
 ## Servicios de terceros / divulgación
 

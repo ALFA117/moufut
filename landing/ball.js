@@ -1,8 +1,21 @@
 // Balón 3D decorativo del hero. Three.js vía CDN (sin build step): genera la
 // textura de pentágonos por código (sin depender de ninguna imagen externa),
 // respeta prefers-reduced-motion, y cae a un fallback CSS si WebGL o la CDN
-// no están disponibles (sin conexión, navegador viejo, etc).
-import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js'
+// no están disponibles (sin conexión, navegador viejo, etc). Three.js se carga
+// con import() dinámico: un import estático que falla tumbaría el módulo
+// entero y el hero se quedaría con el canvas vacío, sin fallback.
+const THREE_SOURCES = [
+  'https://unpkg.com/three@0.160.0/build/three.module.js',
+  'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js',
+]
+let THREE
+
+async function loadThree() {
+  for (const url of THREE_SOURCES) {
+    try { return await import(url) } catch { /* probar la siguiente CDN */ }
+  }
+  throw new Error('Three.js no disponible')
+}
 
 const GREEN = 0x00b368
 const RED = 0xf01e3c
@@ -148,12 +161,19 @@ function initBall(canvas) {
 }
 
 const canvas = document.getElementById('ballCanvas')
+const showFallback = () => canvas?.parentElement?.classList.add('ball-fallback')
+
 if (canvas && window.WebGLRenderingContext) {
-  try {
-    initBall(canvas)
-  } catch {
-    canvas.parentElement?.classList.add('ball-fallback')
-  }
+  // Si la CDN tarda, el balón CSS aparece mientras tanto; si luego carga, se reemplaza.
+  const slow = setTimeout(showFallback, 6000)
+  loadThree()
+    .then((mod) => {
+      THREE = mod
+      initBall(canvas)
+      clearTimeout(slow)
+      canvas.parentElement.classList.remove('ball-fallback')
+    })
+    .catch(() => { clearTimeout(slow); showFallback() })
 } else {
-  canvas?.parentElement?.classList.add('ball-fallback')
+  showFallback()
 }

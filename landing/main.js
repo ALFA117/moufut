@@ -370,3 +370,28 @@ if (terminalEl) {
     runInstallTerminal(terminalEl)
   }
 }
+
+// ── Enlace compartido con ancla (#demo, #faq…) ──────────────────────────────
+// El script del <body> apartó el hash para que el navegador no saltara con el
+// layout a medio cargar; aquí se devuelve a la URL y se baja a la sección una
+// vez que la página y las fuentes cargaron (si el usuario no se movió antes).
+const pendingHash = window.__pendingHash
+if (pendingHash) {
+  let userMoved = false
+  for (const ev of ['wheel', 'touchstart', 'keydown']) {
+    window.addEventListener(ev, () => { userMoved = true }, { once: true, passive: true })
+  }
+  const goToHash = () => {
+    history.replaceState(null, '', location.pathname + location.search + pendingHash)
+    if (userMoved) return
+    let target = null
+    try { target = document.getElementById(decodeURIComponent(pendingHash.slice(1))) } catch {}
+    if (target) target.scrollIntoView({ behavior: 'instant', block: 'start' })
+  }
+  const afterLoad = () => {
+    const fontsReady = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()
+    fontsReady.then(() => requestAnimationFrame(goToHash))
+  }
+  if (document.readyState === 'complete') afterLoad()
+  else window.addEventListener('load', afterLoad, { once: true })
+}

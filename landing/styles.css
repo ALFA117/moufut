@@ -18,7 +18,7 @@
 
   --text-1: #F5F7F5;
   --text-2: #98A69C;
-  --text-3: #5B685F;
+  --text-3: #7D8A81;
 
   --font-display: 'Barlow Condensed', 'Barlow', sans-serif;
   --font-body:    'Barlow', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -170,7 +170,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 700; letter-spacing:
   gap: var(--sp-4);
 }
 
-.brand { display: flex; align-items: center; gap: var(--sp-2); }
+.brand { display: flex; align-items: center; gap: var(--sp-2); min-height: 44px; }
 
 .brand-text {
   font-family: var(--font-brand);
@@ -208,7 +208,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 700; letter-spacing:
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  height: 40px;
+  height: 44px;
   padding: 0 18px;
   border-radius: var(--radius-sm);
   background: var(--surface-2);
@@ -224,8 +224,8 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 700; letter-spacing:
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: var(--radius-sm);
   background: var(--surface-2);
   border: 1px solid var(--border);
@@ -433,11 +433,17 @@ h1.headline {
 
 /* ====== SCROLL REVEAL ====== */
 [data-reveal] {
-  opacity: 0;
-  transform: translateY(20px);
   transition: opacity 600ms var(--ease-out), transform 600ms var(--ease-out);
 }
+/* Solo se oculta si el JS corre (clase .js en <html>): sin JS todo queda visible. */
+.js [data-reveal]:not(.is-visible) {
+  opacity: 0;
+  transform: translateY(20px);
+}
 [data-reveal].is-visible { opacity: 1; transform: translateY(0); }
+
+/* Las anclas (#why, #demo…) no quedan tapadas por el nav fijo. */
+section[id] { scroll-margin-top: var(--nav-h); }
 [data-reveal].stagger-1 { transition-delay: 60ms; }
 [data-reveal].stagger-2 { transition-delay: 120ms; }
 [data-reveal].stagger-3 { transition-delay: 180ms; }
@@ -591,7 +597,7 @@ h2.section-title { font-size: clamp(1.7rem, 3vw, 2.4rem); margin-bottom: var(--s
 
 .stack-table th {
   color: var(--text-3);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-weight: 700;
@@ -626,7 +632,7 @@ h2.section-title { font-size: clamp(1.7rem, 3vw, 2.4rem); margin-bottom: var(--s
     border: none;
   }
   .stack-table td.layer {
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.08em;
     margin-bottom: 4px;
@@ -713,7 +719,7 @@ h2.section-title { font-size: clamp(1.7rem, 3vw, 2.4rem); margin-bottom: var(--s
 .arch-layer-card.layer-green { border-color: var(--border-green); }
 .arch-layer-card.layer-red { border-color: var(--border-red); }
 
-.arch-layer-tag { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; }
+.arch-layer-tag { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; }
 .arch-layer-card.layer-green .arch-layer-tag { color: var(--green); }
 .arch-layer-card.layer-white .arch-layer-tag { color: var(--text-1); }
 .arch-layer-card.layer-red .arch-layer-tag { color: var(--red); }
@@ -838,6 +844,8 @@ h2.section-title { font-size: clamp(1.7rem, 3vw, 2.4rem); margin-bottom: var(--s
   border-radius: 4px;
   font-size: 0.85em;
 }
+/* El comando de la nota se lee a 12 px y con el texto secundario (más contraste). */
+.run-note code { color: var(--text-2); font-size: 0.9em; }
 
 /* ====== PHONE FRAME (compartido: demo interactiva) ====== */
 .phone-frame {
@@ -959,7 +967,7 @@ h2.section-title { font-size: clamp(1.7rem, 3vw, 2.4rem); margin-bottom: var(--s
   font-weight: 700;
   color: var(--text-1);
 }
-.demo-match-meta { font-family: var(--font-body); font-size: 0.65rem; font-weight: 500; color: var(--text-2); }
+.demo-match-meta { font-family: var(--font-body); font-size: 0.75rem; font-weight: 500; color: var(--text-2); }
 
 .demo-chat {
   flex: 1;
@@ -994,7 +1002,7 @@ h2.section-title { font-size: clamp(1.7rem, 3vw, 2.4rem); margin-bottom: var(--s
   font-family: var(--font-brand);
   font-weight: 700;
   letter-spacing: 0.06em;
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   border-radius: 20px;
 }
 
@@ -1078,7 +1086,7 @@ h2.section-title { font-size: clamp(1.7rem, 3vw, 2.4rem); margin-bottom: var(--s
   padding: 8px 10px;
   border-radius: var(--radius-sm);
   background: rgba(255, 255, 255, 0.05);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-family: var(--font-mono);
   opacity: 0;
   transform: translateY(8px);
@@ -1108,51 +1116,28 @@ h2.section-title { font-size: clamp(1.7rem, 3vw, 2.4rem); margin-bottom: var(--s
 }
 .demo-consensus.show { opacity: 1; transform: scale(1); }
 
-/* ====== VIDEO DEMO (placeholder) ====== */
+/* ====== VIDEO DEMO (aviso de una línea mientras no haya video) ====== */
 .video-section {
   width: 100%;
   max-width: 720px;
-  margin: var(--sp-8) auto 0;
+  margin: var(--sp-6) auto 0;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--sp-3);
-}
-
-.video-eyebrow {
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--text-3);
+  justify-content: center;
 }
 
 .video-placeholder {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--radius-md);
   border: 1px dashed var(--border);
   background: var(--surface);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--sp-2);
-  text-align: center;
-  padding: var(--sp-5);
+  font-size: 0.88rem;
+  color: var(--text-2);
 }
-
-.video-placeholder-icon {
-  color: var(--text-3);
-  width: 44px;
-  height: 44px;
-  padding: var(--sp-3);
-  border-radius: 50%;
-  border: 1px solid var(--border);
-}
-
-.video-placeholder-label { font-weight: 700; color: var(--text-1); }
-.video-placeholder-sub { font-size: 0.85rem; color: var(--text-3); max-width: 40ch; }
+.video-placeholder a { color: var(--green); text-decoration: underline; }
+.video-placeholder-icon { color: var(--text-3); flex-shrink: 0; }
 
 .video-embed {
   width: 100%;
@@ -1176,7 +1161,7 @@ h2.section-title { font-size: clamp(1.7rem, 3vw, 2.4rem); margin-bottom: var(--s
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  padding: var(--sp-4) var(--sp-5);
+  padding: 0 var(--sp-5);
   transition: border-color var(--dur-fast) var(--ease-out);
 }
 .faq-item[open] { border-color: var(--border-green); }
@@ -1186,6 +1171,8 @@ h2.section-title { font-size: clamp(1.7rem, 3vw, 2.4rem); margin-bottom: var(--s
   font-weight: 600;
   font-size: 1rem;
   list-style: none;
+  min-height: 44px;
+  padding: var(--sp-4) 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1204,7 +1191,8 @@ h2.section-title { font-size: clamp(1.7rem, 3vw, 2.4rem); margin-bottom: var(--s
 .faq-item[open] summary::after { transform: rotate(45deg); }
 
 .faq-item p {
-  margin-top: var(--sp-3);
+  margin-top: 0;
+  padding-bottom: var(--sp-4);
   color: var(--text-2);
   font-size: 0.92rem;
   line-height: 1.6;
@@ -1266,6 +1254,7 @@ footer {
 }
 
 footer a { color: var(--text-2); transition: color var(--dur-fast) var(--ease-out); }
+.footer-links a, .footer-brand { display: inline-flex; align-items: center; min-height: 44px; }
 footer a:hover { color: var(--green); }
 
 .footer-credit {

@@ -24,6 +24,14 @@ if (navToggle && mobileMenu) {
   window.addEventListener('resize', () => { if (window.innerWidth >= 768) closeMobileMenu() })
 }
 
+// ── Borde del header al hacer scroll ─────────────────────────────────────────
+const navEl = document.querySelector('.nav')
+if (navEl) {
+  const onScroll = () => navEl.classList.toggle('scrolled', window.scrollY > 8)
+  onScroll()
+  window.addEventListener('scroll', onScroll, { passive: true })
+}
+
 if (!reduceMotion && 'IntersectionObserver' in window) {
   const revealObserver = new IntersectionObserver(
     (entries) => {
@@ -82,7 +90,7 @@ function animateCount(el) {
   requestAnimationFrame(tick)
 }
 
-const statNumbers = [...document.querySelectorAll('.stat-number[data-count-to]')]
+const statNumbers = [...document.querySelectorAll('.figure-num[data-count-to]')]
 
 if (reduceMotion || !('IntersectionObserver' in window)) {
   statNumbers.forEach((el) => renderCount(el, el.dataset.countTo))
@@ -100,15 +108,6 @@ if (reduceMotion || !('IntersectionObserver' in window)) {
   )
   statNumbers.forEach((el) => countObserver.observe(el))
 }
-
-// ── Glow que sigue el cursor en las tarjetas "Por qué" ──────────────────────
-document.querySelectorAll('.why-card').forEach((card) => {
-  card.addEventListener('pointermove', (e) => {
-    const rect = card.getBoundingClientRect()
-    card.style.setProperty('--mx', `${e.clientX - rect.left}px`)
-    card.style.setProperty('--my', `${e.clientY - rect.top}px`)
-  })
-})
 
 // ── Demo interactiva (chat / MouBot IA / quiniela) ──────────────────────────
 // Simulación visual del flujo completo — sin datos reales, sin backend.
